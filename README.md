@@ -1,4 +1,5 @@
 ## Welcome to GitHub Pages
+[![Build Status](https://travis-ci.org/trixtateam/phoenix-to-redux.svg?branch=master)](https://travis-ci.org/trixtateam/phoenix-to-redux)
 
 You can use the [editor on GitHub](https://github.com/trixtateam/phoenix-to-redux/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 

@@ -1,0 +1,69 @@
+image: node:8.11.2
+
+stages:
+  - test
+  - deploy
+
+variables:
+  NETLIFY_ACCESS_TOKEN: $NETLIFY_ACCESS_TOKEN
+  NETLIFY_APP_ID: $NETLIFY_APP_ID
+  NETLIFY_APP_ID_RC: $NETLIFY_APP_ID_RC
+  NETLIFY_APP_ID_UAT: $NETLIFY_APP_ID_UAT
+  GITLAB_TOKEN: $GITLAB_TOKEN
+
+test:
+  stage: test
+  only:
+    - develop
+  before_script:
+    - GITLAB_TOKEN=$GITLAB_TOKEN yarn install
+  script:
+    - npm run lint
+    - echo "Test Done"
+    # TODO: Fix tests/Have some with value
+
+deployMaster:
+  stage: deploy
+  only:
+    - master
+  script:
+    - NODE_ENV=production
+    - GITLAB_TOKEN=$GITLAB_TOKEN yarn install
+    - npm i -g netlify-cli@1.2.3
+    - GITLAB_TOKEN=$GITLAB_TOKEN npm run build
+    - netlify deploy -s $NETLIFY_APP_ID -p build -t $NETLIFY_ACCESS_TOKEN
+    - echo "Deploy Done"
+  artifacts:
+    paths:
+      - build
+
+deployUAT:
+  stage: deploy
+  only:
+    - develop
+  script:
+    - NODE_ENV=development
+    - GITLAB_TOKEN=$GITLAB_TOKEN yarn install
+    - npm i -g netlify-cli@1.2.3
+    - GITLAB_TOKEN=$GITLAB_TOKEN npm run build:develop
+    - netlify deploy -s $NETLIFY_APP_ID_UAT -p build -t $NETLIFY_ACCESS_TOKEN
+    - echo "Deploy UAT Done"
+  artifacts:
+    paths:
+      - build
+
+deployReleaseCandidate:
+  stage: deploy
+  only:
+    - release_candidate
+  script:
+    - NODE_ENV=production
+    - GITLAB_TOKEN=$GITLAB_TOKEN yarn install
+    - npm i -g netlify-cli@1.2.3
+    - GITLAB_TOKEN=$GITLAB_TOKEN npm run build
+    - netlify deploy -s $NETLIFY_APP_ID_RC -p build -t $NETLIFY_ACCESS_TOKEN
+    - echo "Deploy Release Candidate Done"
+  artifacts:
+    paths:
+      - build
+      

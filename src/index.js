@@ -17,11 +17,7 @@ import {
 } from './selectors';
 import { channelActionTypes } from './constants/channel';
 import { socketActionTypes, socketStatuses } from './constants/socket';
-import {
-  PHOENIX_AGENT_ID,
-  PHOENIX_TOKEN,
-  PHOENIX_SOCKET_DOMAIN,
-} from './constants/storage';
+import { PHOENIX_AGENT_ID, PHOENIX_TOKEN, PHOENIX_SOCKET_DOMAIN } from './constants/storage';
 
 module.exports = {
   middleware: { createPhoenixChannelMiddleware },

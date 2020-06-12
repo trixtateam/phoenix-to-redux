@@ -3,11 +3,7 @@ import isFunction from 'lodash/isFunction';
 import merge from 'lodash/merge';
 import get from 'lodash/get';
 import { Socket } from 'phoenix';
-import {
-  PHOENIX_TOKEN,
-  PHOENIX_AGENT_ID,
-  PHOENIX_SOCKET_DOMAIN,
-} from './constants/storage';
+import { PHOENIX_TOKEN, PHOENIX_AGENT_ID, PHOENIX_SOCKET_DOMAIN } from './constants/storage';
 import { channelStatuses, channelActionTypes } from './constants/channel';
 import { phoenixSocketStatuses, socketActionTypes } from './constants/socket';
 import {
@@ -48,21 +44,13 @@ import {
  * @param{function} params.dispatch
  * @param{?boolean} params.requiresAuthentication - determines if the socket needs authentication params
  */
-export function setUpSocket({
-  dispatch,
-  requiresAuthentication = true,
-  agentId,
-  domain,
-  token,
-}) {
+export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
   let socket = false;
   if (!isNullOrEmpty(domainUrl)) {
     socket = new Socket(
       domainUrl,
-      requiresAuthentication && token && agentId
-        ? { params: { token, agent_id: agentId } }
-        : {}
+      requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
     );
     socket.connect();
     socket.onError(() => {
@@ -178,23 +166,17 @@ const createPhoenixChannelMiddleware = ({
       const channel = findChannelByName({ channelTopic, socket });
       if (channel) {
         if (!isNullOrEmpty(loadingStatusKey)) {
-          dispatch(
-            updatePhoenixChannelLoadingStatus({ dispatch, loadingStatusKey })
-          );
+          dispatch(updatePhoenixChannelLoadingStatus({ dispatch, loadingStatusKey }));
         }
         channel
           .push(eventName, requestData, channelPushTimeOut)
           .receive(channelStatuses.CHANNEL_OK, data => {
             if (endProgressDelay) {
               setTimeout(() => {
-                dispatch(
-                  endPhoenixChannelProgress({ channelTopic, loadingStatusKey })
-                );
+                dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
               }, endProgressDelay);
             } else {
-              dispatch(
-                endPhoenixChannelProgress({ channelTopic, loadingStatusKey })
-              );
+              dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
             }
             dispatch({ type: channelActionTypes.CHANNEL_PUSH, data });
             if (channelResponseEvent) {
@@ -211,13 +193,9 @@ const createPhoenixChannelMiddleware = ({
           })
           .receive(channelStatuses.CHANNEL_ERROR, data => {
             if (dispatchChannelError) {
-              dispatch(
-                phoenixChannelError({ dispatch, error: data, channelTopic })
-              );
+              dispatch(phoenixChannelError({ dispatch, error: data, channelTopic }));
             }
-            dispatch(
-              endPhoenixChannelProgress({ channelTopic, loadingStatusKey })
-            );
+            dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
             if (channelErrorResponseEvent) {
               if (additionalData) {
                 dispatch({
@@ -243,12 +221,8 @@ const createPhoenixChannelMiddleware = ({
                   : 'Request time out',
               });
             }
-            dispatch(
-              phoenixChannelTimeOut({ dispatch, error: data, channelTopic })
-            );
-            dispatch(
-              endPhoenixChannelProgress({ channelTopic, loadingStatusKey })
-            );
+            dispatch(phoenixChannelTimeOut({ dispatch, error: data, channelTopic }));
+            dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
           });
       }
       return store.getState();
@@ -264,10 +238,7 @@ const createPhoenixChannelMiddleware = ({
         parameterName: domainUrlParameter,
       });
       if (!isNullOrEmpty(urlDomain)) {
-        setStorageFunction(
-          PHOENIX_SOCKET_DOMAIN,
-          formatSocketDomain({ domainString: urlDomain })
-        );
+        setStorageFunction(PHOENIX_SOCKET_DOMAIN, formatSocketDomain({ domainString: urlDomain }));
       }
       const {
         requiresAuthentication,
@@ -277,10 +248,7 @@ const createPhoenixChannelMiddleware = ({
         responseActionType,
       } = action.data;
       if (!requiresAuthentication) {
-        setStorageFunction(
-          PHOENIX_SOCKET_DOMAIN,
-          formatSocketDomain({ domainString: domainUrl })
-        );
+        setStorageFunction(PHOENIX_SOCKET_DOMAIN, formatSocketDomain({ domainString: domainUrl }));
       }
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);
       const token = getStorageFunction(PHOENIX_TOKEN);

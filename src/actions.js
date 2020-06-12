@@ -2,11 +2,7 @@
 import { Presence } from 'phoenix';
 import find from 'lodash/find';
 import get from 'lodash/get';
-import {
-  phoenixChannelStatuses,
-  channelActionTypes,
-  channelStatuses,
-} from './constants/channel';
+import { phoenixChannelStatuses, channelActionTypes, channelStatuses } from './constants/channel';
 import { socketActionTypes } from './constants/socket';
 import {
   NO_ACTION,
@@ -189,10 +185,7 @@ export function phoenixSocketError({ message, socketState }) {
  * @param {Object} params
  * @param {Function} params.dispatch
  */
-export function endPhoenixChannelProgress({
-  channelTopic,
-  loadingStatusKey = null,
-}) {
+export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = null }) {
   return {
     type: PHOENIX_CHANNEL_END_PROGRESS,
     data: {
@@ -206,10 +199,7 @@ export function endPhoenixChannelProgress({
  *
  * @param {Object} params
  */
-export function updatePhoenixChannelLoadingStatus({
-  channelTopic,
-  loadingStatusKey,
-}) {
+export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }) {
   return {
     type: PHOENIX_CHANNEL_LOADING_STATUS,
     data: { channelTopic, loadingStatusKey },
@@ -450,10 +440,7 @@ export function findChannelByName({ channelTopic, socket }) {
   if (!hasValidSocket(socket)) {
     return null;
   }
-  return (
-    socket.channels &&
-    socket.channels.find(channel => channel.topic === channelTopic)
-  );
+  return socket.channels && socket.channels.find(channel => channel.topic === channelTopic);
 }
 
 /**

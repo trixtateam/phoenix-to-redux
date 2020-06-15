@@ -1,18 +1,11 @@
-# Phoenix-to-Redux
-<img src="https://raw.githubusercontent.com/trixtateam/phoenix-to-redux/master/assets/phoenix-to-redux.jpg" alt="phoenix to redux banner" align="center" />
+# Redux
 
-<br />
+If you haven't worked with Redux, it's highly recommended (possibly indispensable!)
+to read through the (amazing) [official documentation](http://redux.js.org)
+and/or watch this [free video tutorial series](https://egghead.io/series/getting-started-with-redux). `phoenix-to-redux` is a [middleware](https://redux.js.org/advanced/middleware) to redux.
 
-# Quick Start Guide
-## Install
-Install the package with npm
-
-```npm i phoenix-to-redux```
-or yarn - whichever you prefer
-
-```yarn add phoenix-to-redux```
-
-## Setup Reducer
+## Usage
+`reducers.js`
 ```JS
 /**
  * Combine all reducers in this file and export the combined reducers.
@@ -37,14 +30,16 @@ export default function createReducer() {
 }
 ```
 
-## Setup Middleware
+`configureStoreStore.js`
 ```JS
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import { createPhoenixChannelMiddleware } from 'phoenix-to-redux';
 import createReducer from './reducers';
 
-const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
+const phoenixChannelMiddleWare = createPhoenixChannelMiddleware({
+  domainUrlParameter: 'space',
+});
 
 export default function configureStore(initialState = {}) {
   // Create the store with two middlewares
@@ -84,11 +79,3 @@ export default function configureStore(initialState = {}) {
   return store;
 }
 ```
-
-## Commnuicate with Phoenix
-To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md)
-
-
-## License
-
-This project is licensed under the MIT license, Copyright (c) 2020 Trixta Inc. For more information see `LICENSE.md`.

@@ -1,9 +1,18 @@
-# Phoenix-to-Redux
-<img src="https://raw.githubusercontent.com/trixtateam/phoenix-to-redux/master/assets/phoenix-to-redux.jpg" alt="phoenix to redux banner" align="center" />
+# Documentation
 
-<br />
+## Table of Contents
+- [JS](js)
+  - [PhoenixJS](js/phoenix-js.md)
+  - [Redux](js/redux.md)
+  - [reselect](js/reselect.md)
+  - [routing](js/routing.md)
 
-# Quick Start Guide
+- [Maintenance](maintenance)
+  - [Dependency Update](maintenance/dependency.md)
+
+## Overview
+
+### Quickstart
 ## Install
 Install the package with npm
 
@@ -21,14 +30,12 @@ or yarn - whichever you prefer
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { createPhoenixReducer } from 'phoenix-to-redux';
-import globalReducer from './containers/App/reducer';
 
 const phoenixReducer = createPhoenixReducer();
 
 export default function createReducer() {
   const rootReducer = combineReducers({
     phoenix: phoenixReducer,
-    global: globalReducer,
   });
 
   // Wrap the root reducer and return a new root reducer with router state
@@ -86,9 +93,4 @@ export default function configureStore(initialState = {}) {
 ```
 
 ## Commnuicate with Phoenix
-To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md)
-
-
-## License
-
-This project is licensed under the MIT license, Copyright (c) 2020 Trixta Inc. For more information see `LICENSE.md`.
+To communicate with phoenix socket, you can make use of the following dispatch [methods](docs/js/methods.md)

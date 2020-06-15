@@ -1,7 +1,7 @@
 {
   "name": "phoenix-to-redux",
-  "version": "1.0.0",
-  "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Messages",
+  "version": "1.0.0-beta.0",
+  "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
   "main": "lib/bundle.cjs.min.js",
   "module": "lib/bundle.esm.min.js",
   "files": [
@@ -64,7 +64,7 @@
     "lodash": ">=4",
     "phoenix": "1.3.4",
     "reselect": "4.0.0",
-    "connected-react-router": ">=4.5.0"
+    "connected-react-router": "4.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",

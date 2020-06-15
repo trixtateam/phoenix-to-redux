@@ -33,10 +33,10 @@ function mapDispatchToProps(dispatch) {
 
 ### Redux Saga Impementation
 In our saga for a container we can connect a socket and get a channel using either
-`getChannel` or `getAnonymousChannel` helper methods. These helper methods create a socket using the
-saved local storage locations `SOCKET_DOMAIN,PHOENIX_TOKEN,AGENT_ID` .
+`getPhoenixChannel` or `getAnonymousChannel` helper methods. These helper methods create a socket using the
+saved local storage locations `PHOENIX_SOCKET_DOMAIN,PHOENIX_TOKEN,PHOENIX_AGENT_ID` .
 
-`getChannel` - this function gets the socket from the `phoenix reducer`, checks for the given channel if it exists, if it does and the
+`getPhoenixChannel` - this function gets the socket from the `phoenix reducer`, checks for the given channel if it exists, if it does and the
 events is not included will update the listening events for the channel with the ones specified.
 ```JS
 import {
@@ -61,7 +61,7 @@ import {
      });
 ```
 
-`getAnonymousChannel` - this function gets a socket for a given channel without passing any parameters `PHOENIX_TOKEN,AGENT_ID` . Generally used
+`getAnonymousChannel` - this function gets a socket for a given channel without passing any parameters `PHOENIX_TOKEN,PHOENIX_AGENT_ID` . Generally used
 for obtaining an authentication token for future authenticated channel joins
 ```JS
     yield put(getAnonymousPhoenixChannel({ domainUrl:domain, channelTopic }));

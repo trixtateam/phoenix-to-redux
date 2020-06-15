@@ -88,6 +88,8 @@ export default function configureStore(initialState = {}) {
 ## Commnuicate with Phoenix
 To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md)
 
+## Documentation
+- [**The detailed Guide to `phoenix-to-redux`**](docs/README.md)
 
 ## License
 

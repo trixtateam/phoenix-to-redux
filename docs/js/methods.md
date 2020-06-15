@@ -1,0 +1,12 @@
+### getPhoenixChannel
+```coming soon```
+### getAnonymousPhoenixChannel
+```coming soon```
+### pushToPhoenixChannel
+```coming soon```
+### disconnectPhoenix
+```coming soon```
+### connectPhoenix
+```coming soon```
+### isAuthenticated
+```coming soon```

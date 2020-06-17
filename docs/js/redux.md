@@ -6,7 +6,7 @@ and/or watch this [free video tutorial series](https://egghead.io/series/getting
 
 ## Usage
 `reducers.js`
-```JS
+```javascript
 /**
  * Combine all reducers in this file and export the combined reducers.
  */
@@ -31,15 +31,13 @@ export default function createReducer() {
 ```
 
 `configureStoreStore.js`
-```JS
+```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import { createPhoenixChannelMiddleware } from 'phoenix-to-redux';
 import createReducer from './reducers';
 
-const phoenixChannelMiddleWare = createPhoenixChannelMiddleware({
-  domainUrlParameter: 'space',
-});
+const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
 
 export default function configureStore(initialState = {}) {
   // Create the store with two middlewares

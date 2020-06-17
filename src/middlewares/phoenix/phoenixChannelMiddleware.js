@@ -44,11 +44,11 @@ import {
  * Attempts to connect the socket and subscribes the socket events
  * to the corresponding phoenix reducer actions
  * @param {Object} params
- * @param{function} params.dispatch - store dispatch function
- * @param{string} params.token - authentication for socket
- * @param{string} params.domain - socket url to connect to
- * @param{string} params.agentId - agent id to connect socket
- * @param{?boolean} params.requiresAuthentication - determines if the socket needs authentication params
+ * @param {function} params.dispatch - store dispatch function
+ * @param {string} params.token - authentication for socket
+ * @param {string} params.domain - socket url to connect to
+ * @param {string} params.agentId - agent id to connect socket
+ * @param {?boolean} params.requiresAuthentication - determines if the socket needs authentication params
  */
 export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
@@ -90,6 +90,15 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
 
 const getSocketState = state => state.phoenix.socket;
 
+/**
+ * Redux Middleware to integrate channel and socket messages from phoenix to redux
+ * corresponding actions to dispatch to phoenix reducer
+ * @param {Object?} params - parameters
+ * @param {Function?} getStorageFunction - function to call to retrieve stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {Function?} removeStorageFunction - function to call to remove stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {Function?} setStorageFunction - function to call to set stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {String?} domainUrlParameter - url parameter to look for set the stored PHOENIX_SOCKET_DOMAIN by default is 'domain'
+ */
 export const createPhoenixChannelMiddleware = ({
   getStorageFunction = getLocalStorageItem,
   removeStorageFunction = removeLocalStorageItem,
@@ -113,7 +122,6 @@ export const createPhoenixChannelMiddleware = ({
           })
         );
       }
-
       return store.getState();
     }
     case PHOENIX_UPDATE_LOGIN_DETAILS: {
@@ -253,7 +261,7 @@ export const createPhoenixChannelMiddleware = ({
         events,
         responseActionType,
       } = action.data;
-      if (!requiresAuthentication) {
+      if (domainUrl) {
         setStorageFunction(PHOENIX_SOCKET_DOMAIN, formatSocketDomain({ domainString: domainUrl }));
       }
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);

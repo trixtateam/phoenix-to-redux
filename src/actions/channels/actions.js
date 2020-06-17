@@ -42,8 +42,8 @@ export function clearPhoenixLoginDetails() {
 }
 
 /**
- * Updates the saved socket connection paramaters in storage
- * @param {Object} params
+ * Updates the saved phoenix socket connection paramaters in storage
+ * @param {Object} params - parameters
  * @param {string?} params.agentId - agent id for phoenix socket
  * @param {string?} params.token - authentication token for phoenix socket
  */
@@ -59,7 +59,7 @@ export function updatePhoenixLoginDetails({ agentId = null, token = null }) {
 
 /**
  * Response after joining a phoenix channel
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {Object} params.response - response from joining channel
  * @param {Object} params.channel - phoenix channel
  */
@@ -72,7 +72,7 @@ export function phoenixChannelJoin({ response, channel }) {
 }
 /**
  * Response after pushing a request to phoenix channel with an error
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
  * @param {string} params.channelTopic - phoenix channel topic
  */
@@ -86,7 +86,7 @@ export function phoenixChannelError({ error, channelTopic }) {
 
 /**
  * Response after joining a phoenix channel with an error
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
  * @param {string} params.channelTopic - phoenix channel topic
  */
@@ -100,7 +100,7 @@ export function phoenixChannelJoinError({ error, channelTopic }) {
 
 /**
  * Response after joining a phoenix channel with a timeout
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
  * @param {string} params.channelTopic -  Name of channel/Topic
  */
@@ -115,7 +115,7 @@ export function phoenixChannelTimeOut({ error, channelTopic }) {
 /**
  * When a response from the phoenix channel is received this action is dispatched to indicate
  * the progress is completed for the loadingStatusKey passed.
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.dispatch
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {string?} params.loadingStatusKey - key to setting loading status on
@@ -132,7 +132,7 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
 
 /**
  * Update the loadingStatusKey for the channelTopic
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {string?} params.loadingStatusKey - key to setting loading status on
  */
@@ -145,11 +145,11 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
 
 /**
  * Helper method to connect to channel within socket. Only used internally.
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {Function} params.dispatch
  * @param {Object} params.socket - phoenix socket
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {Function} dispatch - React dispatcher
+ * @param {Function} params.dispatch - React dispatcher
  */
 export function connectToPhoenixChannel({ socket, channelTopic, dispatch }) {
   if (!hasValidSocket(socket)) {
@@ -174,7 +174,7 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch }) {
 
 /**
  * Connects to given channel name and listens on eventNames and dispatches response to given corresponding eventActionTypes,
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
@@ -243,18 +243,19 @@ export function connectToPhoenixChannelForEvents({
 }
 
 /**
- * Will attempt to create a connection to the socket for the given channel, with the stored credentials
- * @param {Object} params - params
+ * Will attempt to create a connection to the socket for the given channelTopic, events with the stored credentials
+ * @param {Object} params - parameters
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
+ * @param {string} params.domainUrl - url for socket to connect to
  * @param {string} params.channelTopic - Name of channel/Topic
- * @returns {IterableIterator<*>}
  */
 export function getPhoenixChannel({
   channelTopic,
   events = [],
+  domainUrl = null,
   responseActionType = channelActionTypes.CHANNEL_JOIN,
 }) {
   return {
@@ -262,6 +263,7 @@ export function getPhoenixChannel({
     data: {
       requiresAuthentication: true,
       channelTopic,
+      domainUrl,
       events,
       responseActionType,
     },
@@ -269,17 +271,15 @@ export function getPhoenixChannel({
 }
 
 /**
- * Will attempt to create a connection to the socket for the given channel,
- * if there is a DOMAIN_URL_NAME parameter in the url will attempt to connect to that domain using the same
- * agent and token
- * @param {Object} params - params
+ * Will attempt to create a connection to the socket for the given channelTopic, events
+ * without an authorization token
+ * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string} params.domainUrl - url socket to connect to
+ * @param {string} params.domainUrl - url for socket to connect to
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
- * @returns {IterableIterator<*>}
  */
 export function getAnonymousPhoenixChannel({
   channelTopic,
@@ -301,7 +301,7 @@ export function getAnonymousPhoenixChannel({
 
 /**
  * Will attempt to find a channel by name and topic on the given socket and push the data to the found channel,
- * on any CHANNEL_OK,CHANNEL_ERROR, CHANNEL_TIMEOUT the endProgress for the given loadingStatusKey will be dispatched
+ * on any PHOENIX_CHANNEL_OK,PHOENIX_CHANNEL_ERROR, PHOENIX_CHANNEL_TIMEOUT the endProgress for the given loadingStatusKey will be dispatched
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {number} params.endProgressDelay - timeout in milliseconds if you want to delay the end progress of the loading indicator
@@ -309,13 +309,11 @@ export function getAnonymousPhoenixChannel({
  * @param {?string} params.channelResponseEvent - name of action to dispatch to reducer on response from pushing to channel
  * @param {?string} params.channelErrorResponseEvent -  name of action to dispatch to reducer on  error from pushing to channel
  * @param {object} params.requestData - data payload to push on the channel
- * @param {object} params.socket - phoenix socket
  * @param {?object} params.additionalData - this object will merge with the response data object received from the channel for you to use on later note
- * @param {?boolean} params.dispatchChannelError - false by default, determines if should an
- * on channel error occur show it to the user via a toast
+ * @param {?boolean} params.dispatchChannelError - false by default, determines if should an on channel error occur dispatch PHOENIX_CHANNEL_ERROR to the reducer
  * @param {?number} params.channelPushTimeOut - timeout in milliseconds for pushing to the channel, default is 1500
- * @param {?boolean || string} params.channelTimeOutEvent - aname of action to dispatch to reducer on timeout from pushing to channel
- * @param {?string} params.loadingStatusKey - key to push to app reducer to set loading status on
+ * @param {?boolean || string} params.channelTimeOutEvent - name of action to dispatch to reducer on timeout from pushing to channel
+ * @param {?string} params.loadingStatusKey - key indicator, to separate loading status for different actions, to push to reducer
  */
 export function pushToPhoenixChannel({
   channelTopic,
@@ -351,7 +349,7 @@ export function pushToPhoenixChannel({
 /**
  * Disconnects the channel by removing it from the socket
  *
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {Function} params.dispatch
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {Object} params.socket - phoenix socket
@@ -374,7 +372,7 @@ export function removeChannel({ dispatch, channelTopic, socket }) {
 
 /**
  * Searches the connected socket channels by the channelTopic and returns the found channel
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {Object} params.socket - phoenix socket
  * @returns {T} Channel
@@ -388,7 +386,7 @@ export function findChannelByName({ channelTopic, socket }) {
 
 /**
  * Searches the connected socket channels by the channelTopic and removes the channel by un-subscribing for the given topic
- * @param {Object} params
+ * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {Object} params.socket - phoenix socket
  */

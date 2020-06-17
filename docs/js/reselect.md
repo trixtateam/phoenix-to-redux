@@ -13,7 +13,7 @@ offers a good starting point!
 The following selectors are available
 
 ```JS
-import { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus,makeSelectPhoenixChannels } from 'phoenix-to-redux'
+import { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus, makeSelectPhoenixChannels } from 'phoenix-to-redux'
 ```
 
 ### Phoenix Socket Selector

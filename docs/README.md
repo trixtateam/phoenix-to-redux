@@ -1,11 +1,11 @@
 # Documentation
-
 ## Table of Contents
 - [JS](js)
+  - [Methods](js/methods.md)
   - [PhoenixJS](js/phoenix-js.md)
   - [Redux](js/redux.md)
-  - [reselect](js/reselect.md)
-  - [routing](js/routing.md)
+  - [Reselect](js/reselect.md)
+  - [Routing](js/routing.md)
 
 - [Maintenance](maintenance)
   - [Dependency Update](maintenance/dependency.md)
@@ -22,7 +22,7 @@ or yarn - whichever you prefer
 ```yarn add phoenix-to-redux```
 
 ## Setup Reducer
-```JS
+```javascript
 /**
  * Combine all reducers in this file and export the combined reducers.
  */
@@ -45,7 +45,7 @@ export default function createReducer() {
 ```
 
 ## Setup Middleware
-```JS
+```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import { createPhoenixChannelMiddleware } from 'phoenix-to-redux';
@@ -93,4 +93,4 @@ export default function configureStore(initialState = {}) {
 ```
 
 ## Commnuicate with Phoenix
-To communicate with phoenix socket, you can make use of the following dispatch [methods](docs/js/methods.md)
+To communicate with phoenix socket, you can make use of the following dispatch [Methods](docs/js/methods.md#)

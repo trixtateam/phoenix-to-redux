@@ -191,8 +191,7 @@ export function connectToPhoenixChannelForEvents({
   socket,
 }) {
   if (!hasValidSocket(socket)) {
-    dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
-    return { type: NO_ACTION };
+    return disconnectPhoenix({ clearPhoenixDetails: true });
   }
   if (!Array.isArray(events)) {
     return { type: NO_ACTION };

@@ -107,11 +107,13 @@ export const createPhoenixChannelMiddleware = ({
 } = {}) => store => next => action => {
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
+      console.info('PHOENIX_CONNECT_SOCKET');
       const { dispatch } = store;
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);
       const token = getStorageFunction(PHOENIX_TOKEN);
       const agentId = getStorageFunction(PHOENIX_AGENT_ID);
-      if (domain && token && agentId) {
+      const socket = getSocketState(store.getState());
+      if (!socket && domain && token && agentId) {
         dispatch(
           setUpSocket({
             dispatch,
@@ -269,10 +271,11 @@ export const createPhoenixChannelMiddleware = ({
       const agentId = getStorageFunction(PHOENIX_AGENT_ID);
       const loggedInDomain = `${domain}/websocket`;
       if (!isEqual(socketDomain, loggedInDomain)) {
+        console.info('socketDomain, loggedInDomain', socketDomain, loggedInDomain);
         socket = false;
       }
-
       if (!socket || !socket.conn) {
+        console.info('no socket', socket);
         dispatch(
           setUpSocket({
             dispatch,

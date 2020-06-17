@@ -62,6 +62,7 @@ export const createPhoenixReducer = () => (state = initialState, action) => {
         message: false,
       };
     case socketActionTypes.SOCKET_CONNECT:
+      console.info('SOCKET_CONNECT', action.socket);
       return {
         ...state,
         socketStatus: socketStatuses.CONNECTING,

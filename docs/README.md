@@ -16,10 +16,10 @@
 ## Install
 Install the package with npm
 
-```npm i phoenix-to-redux```
+```npm i @trixta/phoenix-to-redux```
 or yarn - whichever you prefer
 
-```yarn add phoenix-to-redux```
+```yarn add @trixta/phoenix-to-redux```
 
 ## Setup Reducer
 ```javascript

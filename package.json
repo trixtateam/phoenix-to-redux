@@ -39,7 +39,7 @@
     "lint:js": "npm run lint:eslint -- . ",
     "lint:staged": "lint-staged",
     "prettify": "prettier --write",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "lint-staged": {
     "*.js": [

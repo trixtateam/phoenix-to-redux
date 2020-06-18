@@ -39,9 +39,9 @@ const getSocketState = state => state.phoenix.socket;
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
  * corresponding actions to dispatch to phoenix reducer
  * @param {Object?} params - parameters
- * @param {Function?} getStorageFunction - function to call to retrieve stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
- * @param {Function?} removeStorageFunction - function to call to remove stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
- * @param {Function?} setStorageFunction - function to call to set stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {Function?} getStorageFunction(key) - function to call to retrieve stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {Function?} removeStorageFunction(key) - function to call to remove stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
+ * @param {Function?} setStorageFunction(key) - function to call to set stored PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN,PHOENIX_AGENT_ID, by default using local storage
  * @param {String?} domainUrlParameter - url parameter to look for set the stored PHOENIX_SOCKET_DOMAIN by default is 'domain'
  */
 export const createPhoenixChannelMiddleware = ({

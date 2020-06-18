@@ -234,7 +234,7 @@ export function connectToPhoenixChannelForEvents({
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
- * @param {string} params.domainUrl - url for socket to connect to
+ * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
  */
 export function getPhoenixChannel({
@@ -289,7 +289,7 @@ export function getAnonymousPhoenixChannel({
  * on any PHOENIX_CHANNEL_OK,PHOENIX_CHANNEL_ERROR, PHOENIX_CHANNEL_TIMEOUT the endProgress for the given loadingStatusKey will be dispatched
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {number} params.endProgressDelay - timeout in milliseconds if you want to delay the end progress of the loading indicator
+ * @param {number?|boolean} params.endProgressDelay - timeout in milliseconds if you want to delay the dispatch of the endProgress action
  * @param {string} params.eventName - the name of the event on channel to push to
  * @param {?string} params.channelResponseEvent - name of action to dispatch to reducer on response from pushing to channel
  * @param {?string} params.channelErrorResponseEvent -  name of action to dispatch to reducer on  error from pushing to channel
@@ -302,7 +302,7 @@ export function getAnonymousPhoenixChannel({
  */
 export function pushToPhoenixChannel({
   channelTopic,
-  endProgressDelay,
+  endProgressDelay = false,
   eventName,
   channelResponseEvent = null,
   channelErrorResponseEvent = null,

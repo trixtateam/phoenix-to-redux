@@ -29,7 +29,7 @@ import {
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
   makeSelectPhoenixSocketStatus,
-} from 'phoenix-to-redux';
+} from '@trixta/phoenix-to-redux';
 
 export class LoginPage extends React.Component {
 constructor(props) {
@@ -109,7 +109,7 @@ import {
   pushToPhoenixChannel,
   formatSocketDomain,
   getUrlParameter,
-} from 'phoenix-to-redux';
+} from '@trixta/phoenix-to-redux';
 import {
   REQUEST_LOGIN,
   REQUEST_LOGIN_FAILURE,
@@ -128,7 +128,6 @@ export function* loginSaga({ data }) {
     const channelTopic = 'authentication';
     // get the login domain data passed from the requestAuthentication action
     const domain = _.get(data, 'domain', '');
-    setLocalStorageItem(SOCKET_DOMAIN, domain);
     // get the anonymous channel and socket
     yield put(
       getAnonymousPhoenixChannel({
@@ -173,7 +172,7 @@ import {
 import {
   disconnectPhoenix,
   updatePhoenixLoginDetails,
-} from 'phoenix-to-redux';
+} from '@trixta/phoenix-to-redux';
 
 /**
  *
@@ -195,8 +194,9 @@ export function* handleLoginSuccessSaga({ data }) {
     const identity = _.get(data, 'identity', '');
     const jwt = _.get(data, 'jwt', '');
     // eslint-disable-next-line camelcase
+    // update phoenix storage keys for future phoenix socket channel calls
     yield put(updatePhoenixLoginDetails({ agentId: agent_id, token: jwt }));
-    // Reset/Upgrade socket to latest authorization
+    // close unauthenticated socket, future pushToPhoenixChannel,getPhoenixChannel callls will now use the updated login details
     yield put(disconnectPhoenix());
     yield put(push(redirectUrl));
   } else {
@@ -216,7 +216,7 @@ import {
   pushToPhoenixChannel,
   formatSocketDomain,
   getUrlParameter,
-} from 'phoenix-to-redux';
+} from '@trixta/phoenix-to-redux';
 import {
   updateError,
   defaultLoad,
@@ -229,6 +229,5 @@ export function* handleLoginFailureSaga(error) {
   );
   yield put(defaultLoad());
 }
-
 ```
 

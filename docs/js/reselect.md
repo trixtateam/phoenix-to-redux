@@ -8,13 +8,18 @@ implementations.
 The [official documentation](https://github.com/reactjs/reselect)
 offers a good starting point!
 
+## Imports
+```JS
+import { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus, makeSelectPhoenixChannels } from '@trixta/phoenix-to-redux'
+```
+or
+```JS
+import { selectors } from '@trixta/phoenix-to-redux'
+selectors.makeSelectPhoenixSocket
+```
 ## Usage
 `phoenix-to-redux` makes use of reselect to provide selectors for the `phoenix` reducer
 The following selectors are available
-
-```JS
-import { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus, makeSelectPhoenixChannels } from 'phoenix-to-redux'
-```
 
 ### Phoenix Socket Selector
 

@@ -4,6 +4,53 @@ If you haven't worked with Redux, it's highly recommended (possibly indispensabl
 to read through the (amazing) [official documentation](http://redux.js.org)
 and/or watch this [free video tutorial series](https://egghead.io/series/getting-started-with-redux). `phoenix-to-redux` is a [middleware](https://redux.js.org/advanced/middleware) to redux.
 
+## Imports
+### reducers
+```javascript
+import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
+```
+or
+```javascript
+import { reducers } from '@trixta/phoenix-to-redux';
+reducers.createPhoenixReducer
+```
+### constants
+```javascript
+import { constants } from '@trixta/phoenix-to-redux';
+```
+or
+```javascript
+import { channelStatuses, channelActionTypes, phoenixChannelStatuses,socketActionTypes, socketStatuses, phoenixSocketStatuses, PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN, PHOENIX_AGENT_ID } from '@trixta/phoenix-to-redux';
+```
+### actions
+```javascript
+import { actions } from '@trixta/phoenix-to-redux';
+```
+or
+```javascript
+import { updatePhoenixLoginDetails, getPhoenixChannel,  getAnonymousPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix   } from '@trixta/phoenix-to-redux';
+```
+
+### middlewares
+```javascript
+import { middlewares } from '@trixta/phoenix-to-redux';
+```
+or
+```javascript
+import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+```
+
+### helper methods
+```javascript
+import { helpers } from '@trixta/phoenix-to-redux';
+helpers.isAuthenticated
+```
+or
+```javascript
+import { isAuthenticated } from '@trixta/phoenix-to-redux';
+```
+
+
 ## Usage
 `reducers.js`
 ```javascript
@@ -13,8 +60,11 @@ and/or watch this [free video tutorial series](https://egghead.io/series/getting
 
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { createPhoenixReducer } from 'phoenix-to-redux';
+import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
 import globalReducer from './containers/App/reducer';
+import createHistory from 'history/createBrowserHistory';
+
+const history = createHistory();
 
 const phoenixReducer = createPhoenixReducer();
 
@@ -34,7 +84,7 @@ export default function createReducer() {
 ```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
-import { createPhoenixChannelMiddleware } from 'phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
 import createReducer from './reducers';
 
 const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();

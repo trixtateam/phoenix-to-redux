@@ -22,7 +22,9 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { createPhoenixReducer } from 'phoenix-to-redux';
 import globalReducer from './containers/App/reducer';
+import createHistory from 'history/createBrowserHistory';
 
+const history = createHistory();
 const phoenixReducer = createPhoenixReducer();
 
 export default function createReducer() {

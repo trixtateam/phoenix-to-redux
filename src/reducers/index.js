@@ -1,1 +1,1 @@
-export { default as createPhoenixReducer } from './phoenixReducer';
+export * from './phoenixReducer';

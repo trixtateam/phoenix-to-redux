@@ -1,5 +1,5 @@
 {
-  "name": "phoenix-to-redux",
+  "name": "@trixta/phoenix-to-redux",
   "version": "1.0.0-beta.0",
   "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
   "main": "lib/bundle.cjs.min.js",
@@ -38,7 +38,8 @@
     "lint:eslint:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:js": "npm run lint:eslint -- . ",
     "lint:staged": "lint-staged",
-    "prettify": "prettier --write"
+    "prettify": "prettier --write",
+    "prepublish": "npm run build"
   },
   "lint-staged": {
     "*.js": [
@@ -93,5 +94,9 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.16.1",
     "rollup-plugin-terser": "^6.1.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
   }
 }

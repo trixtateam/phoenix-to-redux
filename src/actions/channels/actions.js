@@ -5,7 +5,6 @@ import get from 'lodash/get';
 import {
   NO_ACTION,
   PHOENIX_CHANNEL_END_PROGRESS,
-  PHOENIX_CHANNEL_LOADING_STATUS,
   PHOENIX_GET_CHANNEL,
   PHOENIX_PUSH_TO_CHANNEL,
   PHOENIX_CLEAR_LOGIN_DETAILS,
@@ -127,19 +126,6 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
       channelTopic,
       loadingStatusKey,
     },
-  };
-}
-
-/**
- * Update the loadingStatusKey for the channelTopic
- * @param {Object} params - parameters
- * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string?} params.loadingStatusKey - key to setting loading status on
- */
-export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }) {
-  return {
-    type: PHOENIX_CHANNEL_LOADING_STATUS,
-    data: { channelTopic, loadingStatusKey },
   };
 }
 

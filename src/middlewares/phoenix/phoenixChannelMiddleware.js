@@ -1,8 +1,6 @@
 import isEqual from 'lodash/isEqual';
-import isFunction from 'lodash/isFunction';
 import merge from 'lodash/merge';
 import get from 'lodash/get';
-import { Socket } from 'phoenix';
 import {
   PHOENIX_GET_CHANNEL,
   PHOENIX_DISCONNECT_SOCKET,
@@ -15,8 +13,6 @@ import {
   PHOENIX_SOCKET_DOMAIN,
   channelStatuses,
   channelActionTypes,
-  phoenixSocketStatuses,
-  socketActionTypes,
 } from '../../constants';
 import { getUrlParameter, formatSocketDomain, hasValidSocket } from '../../utils';
 import {
@@ -27,66 +23,15 @@ import {
 } from '../../helpers';
 
 import {
-  phoenixSocketError,
-  openPhoenixSocket,
-  closePhoenixSocket,
   connectToPhoenixChannelForEvents,
   findChannelByName,
   phoenixChannelError,
   endPhoenixChannelProgress,
-  updatePhoenixChannelLoadingStatus,
   phoenixChannelTimeOut,
   disconnectPhoenix,
-  disconnectPhoenixSocket,
 } from '../../actions';
 
-/**
- * Attempts to connect the socket and subscribes the socket events
- * to the corresponding phoenix reducer actions
- * @param {Object} params
- * @param {function} params.dispatch - store dispatch function
- * @param {string} params.token - authentication for socket
- * @param {string} params.domain - socket url to connect to
- * @param {string} params.agentId - agent id to connect socket
- * @param {?boolean} params.requiresAuthentication - determines if the socket needs authentication params
- */
-export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
-  const domainUrl = formatSocketDomain({ domainString: domain });
-  let socket = false;
-  if (!isNullOrEmpty(domainUrl)) {
-    socket = new Socket(
-      domainUrl,
-      requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
-    );
-    socket.connect();
-    socket.onError(() => {
-      const connectionState = get(socket, 'conn.readyState');
-      if (
-        isEqual(connectionState, phoenixSocketStatuses.CLOSED) ||
-        isEqual(connectionState, phoenixSocketStatuses.CLOSING)
-      ) {
-        if (isFunction(dispatch)) {
-          dispatch(
-            phoenixSocketError({
-              message: 'Connection to server lost.',
-              socketState: connectionState,
-            })
-          );
-          dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
-        }
-      }
-    });
-    socket.onOpen(() => {
-      dispatch(openPhoenixSocket());
-    });
-    socket.onClose(() => dispatch(closePhoenixSocket()));
-    return {
-      type: socketActionTypes.SOCKET_CONNECT,
-      socket,
-    };
-  }
-  return disconnectPhoenix({ clearPhoenixDetails: true });
-}
+import { disconnectPhoenixSocket, updatePhoenixChannelLoadingStatus, setUpSocket } from './actions';
 
 const getSocketState = state => state.phoenix.socket;
 
@@ -107,7 +52,6 @@ export const createPhoenixChannelMiddleware = ({
 } = {}) => store => next => action => {
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
-      console.info('PHOENIX_CONNECT_SOCKET');
       const { dispatch } = store;
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);
       const token = getStorageFunction(PHOENIX_TOKEN);
@@ -271,11 +215,9 @@ export const createPhoenixChannelMiddleware = ({
       const agentId = getStorageFunction(PHOENIX_AGENT_ID);
       const loggedInDomain = `${domain}/websocket`;
       if (!isEqual(socketDomain, loggedInDomain)) {
-        console.info('socketDomain, loggedInDomain', socketDomain, loggedInDomain);
         socket = false;
       }
       if (!socket || !socket.conn) {
-        console.info('no socket', socket);
         dispatch(
           setUpSocket({
             dispatch,

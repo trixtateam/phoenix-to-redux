@@ -21,7 +21,7 @@ or yarn - whichever you prefer
 
 ```yarn add @trixta/phoenix-to-redux```
 
-## Setup Reducer
+## 1. Setup Reducer
 ```javascript
 /**
  * Combine all reducers in this file and export the combined reducers.
@@ -47,7 +47,7 @@ export default function createReducer() {
 }
 ```
 
-## Setup Middleware
+## 2. Setup Middleware
 ```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
@@ -93,6 +93,13 @@ export default function configureStore(initialState = {}) {
 
   return store;
 }
+```
+## 3. Setup Login Details
+```javascript
+import { put } from 'redux-saga/effects';
+import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
+// update login details
+yield put(updatePhoenixLoginDetails({token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
 ## Redux Saga Example

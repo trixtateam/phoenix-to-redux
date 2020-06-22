@@ -12,25 +12,24 @@ or yarn - whichever you prefer
 
 ```yarn add @trixta/phoenix-to-redux```
 
-## Setup Reducer
-```JS
+## 1. Setup Reducer
+```javascript
 /**
  * Combine all reducers in this file and export the combined reducers.
  */
 
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { createPhoenixReducer } from 'phoenix-to-redux';
-import globalReducer from './containers/App/reducer';
+import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
 import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
+
 const phoenixReducer = createPhoenixReducer();
 
 export default function createReducer() {
   const rootReducer = combineReducers({
     phoenix: phoenixReducer,
-    global: globalReducer,
   });
 
   // Wrap the root reducer and return a new root reducer with router state
@@ -39,11 +38,11 @@ export default function createReducer() {
 }
 ```
 
-## Setup Middleware
-```JS
+## 2. Setup Middleware
+```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
-import { createPhoenixChannelMiddleware } from 'phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
 import createReducer from './reducers';
 
 const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
@@ -85,6 +84,13 @@ export default function configureStore(initialState = {}) {
 
   return store;
 }
+```
+## 3. Setup Login Details
+```javascript
+import { put } from 'redux-saga/effects';
+import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
+// update login details
+yield put(updatePhoenixLoginDetails({token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
 ## Commnuicate with Phoenix

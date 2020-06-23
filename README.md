@@ -93,7 +93,7 @@ import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
 yield put(updatePhoenixLoginDetails({token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
-## Commnuicate with Phoenix
+## Communicate with Phoenix
 To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md)
 
 ## Documentation

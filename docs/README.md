@@ -376,5 +376,5 @@ const appReducer = (state = initialState, action) =>
           });
 export default appReducer;
 ```
-## Commnuicate with Phoenix
+## Communicate with Phoenix
 To communicate with phoenix socket, you can make use of the following dispatch [Methods](js/methods.md)

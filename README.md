@@ -90,7 +90,7 @@ export default function configureStore(initialState = {}) {
 import { put } from 'redux-saga/effects';
 import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
 // update login details
-yield put(updatePhoenixLoginDetails({token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
+yield put(updatePhoenixLoginDetails({ domain: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
 ## Communicate with Phoenix

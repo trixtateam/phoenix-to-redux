@@ -49,10 +49,13 @@ export function closePhoenixSocket() {
 
 /**
  * Disconnects the phoenix socket
+ * @param {Object} params - parameters
+ * @param {Object} params.socket = socket being disconnected
  */
-export function disconnectPhoenixSocket() {
+export function disconnectPhoenixSocket({ socket }) {
   return {
     type: socketActionTypes.SOCKET_DISCONNECT,
+    socket,
   };
 }
 

@@ -75,10 +75,11 @@ export function pushToPhoenixChannel({
 /**
  * Updates the saved phoenix socket connection paramaters in storage
  * @param {Object} params - parameters
+ * @param {string?} params.domain - domain for phoenix socket
  * @param {string?} params.agentId - agent id for phoenix socket
  * @param {string?} params.token - authentication token for phoenix socket
  */
-export function updatePhoenixLoginDetails({ agentId = null, token = null })
+export function updatePhoenixLoginDetails({ domain = null, agentId = null, token = null })
 ```
 ## Phoenix Socket Methods
 ### disconnectPhoenix

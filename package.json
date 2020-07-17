@@ -1,6 +1,6 @@
 {
   "name": "@trixta/phoenix-to-redux",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
   "main": "lib/bundle.cjs.min.js",
   "module": "lib/bundle.esm.min.js",

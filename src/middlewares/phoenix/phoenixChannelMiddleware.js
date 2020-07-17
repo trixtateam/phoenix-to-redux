@@ -71,7 +71,10 @@ export const createPhoenixChannelMiddleware = ({
       return store.getState();
     }
     case PHOENIX_UPDATE_LOGIN_DETAILS: {
-      const { token, agentId } = action.data;
+      const { token, agentId, domain } = action.data;
+      if (domain) {
+        setStorageFunction(PHOENIX_SOCKET_DOMAIN, domain);
+      }
       if (token) {
         setStorageFunction(PHOENIX_TOKEN, token);
       }
@@ -94,7 +97,7 @@ export const createPhoenixChannelMiddleware = ({
 
       if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
         socket.disconnect();
-        dispatch(disconnectPhoenixSocket());
+        dispatch(disconnectPhoenixSocket({ socket }));
         if (clearPhoenixDetails) {
           removeStorageFunction(PHOENIX_SOCKET_DOMAIN);
           removeStorageFunction(PHOENIX_TOKEN);
@@ -143,6 +146,7 @@ export const createPhoenixChannelMiddleware = ({
               if (additionalData) {
                 dispatch({
                   type: channelResponseEvent,
+                  channelTopic,
                   data: merge(data, additionalData),
                   dispatch,
                 });
@@ -160,12 +164,14 @@ export const createPhoenixChannelMiddleware = ({
               if (additionalData) {
                 dispatch({
                   type: channelErrorResponseEvent,
+                  channelTopic,
                   error: merge(data, additionalData),
                   dispatch,
                 });
               } else {
                 dispatch({
                   type: channelErrorResponseEvent,
+                  channelTopic,
                   error: data,
                   dispatch,
                 });
@@ -176,6 +182,7 @@ export const createPhoenixChannelMiddleware = ({
             if (channelTimeOutEvent) {
               dispatch({
                 type: channelTimeOutEvent,
+                channelTopic,
                 error: additionalData
                   ? merge({ message: 'Request time out' }, additionalData)
                   : 'Request time out',

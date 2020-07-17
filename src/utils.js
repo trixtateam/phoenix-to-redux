@@ -10,7 +10,7 @@ import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from '.
  * @param defaultValue - default value to return if not found
  * @returns {string}
  */
-function getUrlParameter({ search, parameterName, defaultValue = '' }) {
+export function getUrlParameter({ search, parameterName, defaultValue = '' }) {
   // eslint-disable-next-line no-useless-escape
   const parameter = parameterName.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   const regex = new RegExp(`[\\?&]${parameter}=([^&#]*)`);
@@ -23,7 +23,7 @@ function getUrlParameter({ search, parameterName, defaultValue = '' }) {
  * @param{string} domainString - domain string
  * @returns string
  */
-function formatSocketDomain({ domainString }) {
+export function formatSocketDomain({ domainString }) {
   let domainUrl = domainString;
   if (typeof domainUrl !== 'string') {
     return '';
@@ -57,7 +57,7 @@ function formatSocketDomain({ domainString }) {
  * @param {Object} socket - phoenix socket
  * @returns {boolean}
  */
-function hasValidSocket(socket) {
+export function hasValidSocket(socket) {
   if (socket === false) {
     return false;
   }
@@ -70,5 +70,3 @@ function hasValidSocket(socket) {
 
   return true;
 }
-
-export { hasValidSocket, formatSocketDomain, getUrlParameter };

@@ -3,7 +3,6 @@ import { Presence } from 'phoenix';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import {
-  NO_ACTION,
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_GET_CHANNEL,
   PHOENIX_PUSH_TO_CHANNEL,
@@ -12,6 +11,9 @@ import {
   phoenixChannelStatuses,
   channelActionTypes,
   channelStatuses,
+  NO_PHOENIX_CHANNEL_FOUND,
+  INVALID_SOCKET,
+  PHOENIX_CHANNEL_UPDATED,
 } from '../../constants';
 import { hasValidSocket } from '../../utils';
 import { isNullOrEmpty } from '../../helpers';
@@ -24,7 +26,7 @@ import { disconnectPhoenix } from '../sockets/actions';
  */
 export const syncPresentUsers = (dispatch, presences) => {
   const presentUsers = [];
-  Presence.list(presences, (id, { metas: [first] }) => first.user).map(user =>
+  Presence.list(presences, (id, { metas: [first] }) => first.user).map((user) =>
     presentUsers.push(user)
   );
   dispatch({ type: channelActionTypes.CHANNEL_PRESENCE_UPDATE, presentUsers });
@@ -137,23 +139,24 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
  * @param {Function} params.dispatch
  * @param {Object} params.socket - phoenix socket
  * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string?} params.token - token for channel
  * @param {Function} params.dispatch - React dispatcher
  */
-export function connectToPhoenixChannel({ socket, channelTopic, dispatch }) {
+export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
   if (!hasValidSocket(socket)) {
     dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
     return null;
   }
 
-  const channel = socket.channel(channelTopic);
+  const channel = socket.channel(channelTopic, token ? { token } : null);
   let presences = {};
 
-  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_STATE, state => {
+  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_STATE, (state) => {
     presences = Presence.syncState(presences, state);
     // TODO implement channel presence
   });
 
-  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_CHANGE, diff => {
+  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_CHANGE, (diff) => {
     presences = Presence.syncDiff(presences, diff);
     // TODO implement channel presence
   });
@@ -168,6 +171,7 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch }) {
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
+ * @param {String?} params.token - token for channel
  * @param {Object} params.socket - phoenix socket
  * @returns {Object}
  */
@@ -176,20 +180,19 @@ export function connectToPhoenixChannelForEvents({
   channelTopic,
   events,
   responseActionType,
+  token = null,
   socket,
 }) {
-  if (!hasValidSocket(socket)) {
-    return disconnectPhoenix({ clearPhoenixDetails: true });
-  }
-  if (!Array.isArray(events)) {
-    return { type: NO_ACTION };
-  }
   let channel = findChannelByName({ channelTopic, socket });
   if (!channel && !isNullOrEmpty(channelTopic)) {
-    channel = connectToPhoenixChannel({ socket, channelTopic, dispatch });
+    channel = connectToPhoenixChannel({ socket, channelTopic, dispatch, token });
+    if (!channel) {
+      return { type: NO_PHOENIX_CHANNEL_FOUND };
+    }
+
     channel
       .join()
-      .receive(channelStatuses.CHANNEL_OK, response => {
+      .receive(channelStatuses.CHANNEL_OK, (response) => {
         dispatch(
           phoenixChannelJoin({
             response,
@@ -198,11 +201,11 @@ export function connectToPhoenixChannelForEvents({
         );
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })
-      .receive(channelStatuses.CHANNEL_ERROR, response => {
+      .receive(channelStatuses.CHANNEL_ERROR, (response) => {
         dispatch(phoenixChannelJoinError({ error: response, channelTopic }));
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })
-      .receive(channelStatuses.CHANNEL_TIMEOUT, response => {
+      .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
         dispatch(
           phoenixChannelTimeOut({
             error: response,
@@ -217,16 +220,16 @@ export function connectToPhoenixChannelForEvents({
     };
   }
 
-  if (channel) {
+  if (channel && events) {
     events.forEach(({ eventName, eventActionType }) => {
       if (!find(get(channel, 'bindings', []), { event: eventName })) {
-        channel.on(eventName, data => {
+        channel.on(eventName, (data) => {
           dispatch({ type: eventActionType, data, eventName, channelTopic });
         });
       }
     });
   }
-  return { type: NO_ACTION };
+  return { type: PHOENIX_CHANNEL_UPDATED, channel };
 }
 
 /**
@@ -238,10 +241,12 @@ export function connectToPhoenixChannelForEvents({
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {String?} params.token - token for channel
  */
 export function getPhoenixChannel({
   channelTopic,
   events = [],
+  token = null,
   domainUrl = null,
   responseActionType = channelActionTypes.CHANNEL_JOIN,
 }) {
@@ -250,6 +255,7 @@ export function getPhoenixChannel({
     data: {
       requiresAuthentication: true,
       channelTopic,
+      channelToken: token,
       domainUrl,
       events,
       responseActionType,
@@ -267,11 +273,13 @@ export function getPhoenixChannel({
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
+ * @param {String?} params.token - token for channel
  */
 export function getAnonymousPhoenixChannel({
   channelTopic,
   domainUrl,
   events = [],
+  token = null,
   responseActionType = channelActionTypes.CHANNEL_JOIN,
 }) {
   return {
@@ -280,6 +288,7 @@ export function getAnonymousPhoenixChannel({
       domainUrl,
       requiresAuthentication: false,
       channelTopic,
+      channelToken: token,
       events,
       responseActionType,
     },
@@ -344,7 +353,7 @@ export function pushToPhoenixChannel({
 export function removeChannel({ dispatch, channelTopic, socket }) {
   if (!hasValidSocket(socket)) {
     dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
-    return { type: NO_ACTION };
+    return { type: INVALID_SOCKET };
   }
   const channel = findChannelByName({ channelTopic, socket });
   leavePhoenixChannel({ channelTopic, socket });
@@ -368,7 +377,7 @@ export function findChannelByName({ channelTopic, socket }) {
   if (!hasValidSocket(socket)) {
     return null;
   }
-  return socket.channels && socket.channels.find(channel => channel.topic === channelTopic);
+  return socket.channels && socket.channels.find((channel) => channel.topic === channelTopic);
 }
 
 /**

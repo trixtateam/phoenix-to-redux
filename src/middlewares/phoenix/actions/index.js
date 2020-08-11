@@ -1,6 +1,5 @@
 import { Socket } from 'phoenix';
 import isEqual from 'lodash/isEqual';
-import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
@@ -92,7 +91,7 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
     );
     socket.connect();
     socket.onError(() => {
-      const connectionState = get(socket, 'conn.readyState');
+      const connectionState = socket.connectionState();
       if (
         isEqual(connectionState, phoenixSocketStatuses.CLOSED) ||
         isEqual(connectionState, phoenixSocketStatuses.CLOSING)

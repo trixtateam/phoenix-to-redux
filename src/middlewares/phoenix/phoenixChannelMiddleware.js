@@ -33,7 +33,7 @@ import {
 
 import { disconnectPhoenixSocket, updatePhoenixChannelLoadingStatus, setUpSocket } from './actions';
 
-const getSocketState = state => state.phoenix.socket;
+const getSocketState = (state) => state.phoenix.socket;
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -49,7 +49,7 @@ export const createPhoenixChannelMiddleware = ({
   removeStorageFunction = removeLocalStorageItem,
   setStorageFunction = setLocalStorageItem,
   domainUrlParameter = 'domain',
-} = {}) => store => next => action => {
+} = {}) => (store) => (next) => (action) => {
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
       const { dispatch } = store;
@@ -133,7 +133,7 @@ export const createPhoenixChannelMiddleware = ({
         }
         channel
           .push(eventName, requestData, channelPushTimeOut)
-          .receive(channelStatuses.CHANNEL_OK, data => {
+          .receive(channelStatuses.CHANNEL_OK, (data) => {
             if (endProgressDelay) {
               setTimeout(() => {
                 dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
@@ -155,7 +155,7 @@ export const createPhoenixChannelMiddleware = ({
               }
             }
           })
-          .receive(channelStatuses.CHANNEL_ERROR, data => {
+          .receive(channelStatuses.CHANNEL_ERROR, (data) => {
             if (dispatchChannelError) {
               dispatch(phoenixChannelError({ error: data, channelTopic }));
             }
@@ -178,7 +178,7 @@ export const createPhoenixChannelMiddleware = ({
               }
             }
           })
-          .receive(channelStatuses.CHANNEL_TIMEOUT, data => {
+          .receive(channelStatuses.CHANNEL_TIMEOUT, (data) => {
             if (channelTimeOutEvent) {
               dispatch({
                 type: channelTimeOutEvent,
@@ -212,6 +212,7 @@ export const createPhoenixChannelMiddleware = ({
         channelTopic,
         domainUrl,
         events,
+        channelToken,
         responseActionType,
       } = action.data;
       if (domainUrl) {
@@ -235,15 +236,18 @@ export const createPhoenixChannelMiddleware = ({
           })
         );
       }
+
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,
           channelTopic,
           events,
+          token: channelToken,
           responseActionType,
           socket: store.getState().phoenix.socket,
         })
       );
+
       return store.getState();
     }
     default:

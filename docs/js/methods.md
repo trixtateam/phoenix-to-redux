@@ -10,10 +10,12 @@
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {String?} params.token - token for channel
  */
 export function getPhoenixChannel({
   channelTopic,
   events = [],
+  token = null,
   domainUrl = null,
   responseActionType = channelActionTypes.CHANNEL_JOIN,
 })
@@ -30,11 +32,13 @@ export function getPhoenixChannel({
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
+ * @param {String?} params.token - token for channel
  */
 export function getAnonymousPhoenixChannel({
   channelTopic,
   domainUrl,
   events = [],
+  token = null,
   responseActionType = channelActionTypes.CHANNEL_JOIN,
 })
 ```

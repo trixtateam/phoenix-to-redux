@@ -1,5 +1,7 @@
 // for cases when outputting an action to the reducer is not valid
-export const NO_ACTION = 'NO_ACTION';
+export const PHOENIX_CHANNEL_UPDATED = 'phoenix-to-redux/PHOENIX_CHANNEL_UPDATED';
+export const NO_PHOENIX_CHANNEL_FOUND = 'phoenix-to-redux/NO_PHOENIX_CHANNEL_FOUND';
+export const INVALID_SOCKET = 'phoenix-to-redux/INVALID_SOCKET';
 export const SOCKET_URI = 'socket';
 export const SOCKET_PROTOCOL_SECURE = 'wss:';
 export const SOCKET_PROTOCOL_UN_SECURE = 'ws:';

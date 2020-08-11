@@ -74,47 +74,64 @@ Identify problems that occur and try to resolve them by rolling back the respect
 **[0] PATCH UPDATES**
 
 ```
- babel-eslint               10.0.1  →  10.0.3
- eslint-config-airbnb       17.1.0  →  17.1.1
- eslint-plugin-import       2.17.2  →  2.17.3
- eslint-plugin-jsx-a11y      6.2.1  →   6.2.3
- eslint-plugin-react-hooks   1.6.0  →   1.6.1
- prettier                   1.17.0  →  1.17.1
+ phoenix                      1.3.4  →    1.5.4
+ connected-react-router       4.5.0  →    6.8.0
+ @rollup/plugin-commonjs    ^13.0.2  →  ^14.0.0
+ eslint                      5.16.0  →    7.6.0
+ eslint-config-airbnb        17.1.1  →   18.2.0
+ eslint-config-airbnb-base   13.2.0  →   14.2.0
+ eslint-config-prettier       4.3.0  →   6.11.0
+ eslint-plugin-react-hooks    1.7.0  →    4.0.8
+ prettier                    1.19.1  →    2.0.5
+ rollup-plugin-terser        ^6.1.0  →   ^7.0.0
+
 ```
 
 **[1] MINOR UPDATES**
 
 ```
- babel-eslint               10.0.1  →  10.0.3
- eslint-config-airbnb       17.1.0  →  17.1.1
- eslint-plugin-import       2.17.2  →  2.17.3
- eslint-plugin-jsx-a11y      6.2.1  →   6.2.3
- eslint-plugin-react-hooks   1.6.0  →   1.6.1
- prettier                   1.17.0  →  1.17.1
+ lodash                           4.17.15  →  4.17.19
+ @babel/cli                       ^7.10.1  →  ^7.10.5
+ @babel/core                      ^7.10.2  →  ^7.10.5
+ @babel/preset-env                ^7.10.2  →  ^7.10.4
+ @rollup/plugin-babel              ^5.0.3  →   ^5.0.4
+ @rollup/plugin-commonjs          ^13.0.0  →  ^13.0.2
+ eslint-import-resolver-webpack    0.12.1  →   0.12.2
+ eslint-plugin-react               7.20.0  →   7.20.5
+ babel-eslint                       10.0.1  →  10.0.3
+ eslint-config-airbnb               17.1.0  →  17.1.1
+ eslint-plugin-import               2.17.2  →  2.17.3
+ eslint-plugin-jsx-a11y              6.2.1  →   6.2.3
+ eslint-plugin-react-hooks           1.6.0  →   1.6.1
+ prettier                           1.17.0  →  1.17.1
 ```
 
 **[3] MAJOR UPDATES**
 
 ```
- phoenix                             1.3.4  →    1.5.3
+ phoenix                             1.3.4  →    1.5.4
  babel-eslint                       10.0.3  →   10.1.0
+ @babel/core                       ^7.10.5  →  ^7.11.1
+ @babel/preset-env                 ^7.10.4  →  ^7.11.0
  babel-plugin-dynamic-import-node    2.2.0  →    2.3.3
  eslint-config-airbnb-base          13.1.0  →   13.2.0
  eslint-config-prettier              4.1.0  →    4.3.0
  eslint-import-resolver-webpack     0.11.1  →   0.12.1
- eslint-plugin-import               2.17.3  →   2.21.2
+ eslint-plugin-import               2.21.2  →   2.22.0
  eslint-plugin-prettier              3.0.1  →    3.1.4
  eslint-plugin-react                7.12.4  →   7.20.0
  eslint-plugin-react-hooks           1.6.1  →    1.7.0
  eslint-plugin-redux-saga            1.0.0  →    1.1.3
+ eslint-plugin-jsx-a11y              6.2.3  →    6.3.1
  prettier                           1.17.1  →   1.19.1
- rollup                            ^2.15.0  →  ^2.16.1
+ rollup                            ^2.16.1  →  ^2.23.1
+ @rollup/plugin-node-resolve        ^8.0.1  →   ^8.4.0
+ @rollup/plugin-babel               ^5.0.4  →   ^5.1.0
 ```
 
 **[4] ROLLBACKS**
 
 ```
-phoenix                        1.5.3  →       1.3.4 <--- rolled back
 ```
 
 **[5] NEW DEPENDENCIES**
@@ -123,5 +140,3 @@ phoenix                        1.5.3  →       1.3.4 <--- rolled back
 ```
 
 ## Errors Encountered
-- phoenix channels and socket throwing errors with helper methods, will need to be tested and updated to support new library methods
- **_image-webpack-loader 1.3.4 → 1.5.3 <--- Rolled back_**

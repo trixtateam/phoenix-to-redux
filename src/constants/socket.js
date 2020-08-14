@@ -7,18 +7,7 @@ export const socketActionTypes = {
 };
 
 export const socketStatuses = {
-  CONNECTING: 'CONNECTING',
-  CONNECTED: 'CONNECTED',
-  OPEN: 'OPEN',
-  CLOSING: 'CLOSING',
-  CLOSED: 'CLOSED',
-  DISCONNECTED: 'DISCONNECTED',
-  ERROR: 'ERROR',
-};
-
-export const phoenixSocketStatuses = {
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSING: 2,
-  CLOSED: 3,
+  OPEN: 'open',
+  CLOSING: 'closing',
+  CLOSED: 'closed',
 };

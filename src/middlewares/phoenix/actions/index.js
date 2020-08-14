@@ -4,7 +4,7 @@ import isFunction from 'lodash/isFunction';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
-  phoenixSocketStatuses,
+  socketStatuses,
 } from '../../../constants';
 import { disconnectPhoenix } from '../../../actions';
 import { formatSocketDomain } from '../../../utils';
@@ -93,8 +93,8 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
     socket.onError(() => {
       const connectionState = socket.connectionState();
       if (
-        isEqual(connectionState, phoenixSocketStatuses.CLOSED) ||
-        isEqual(connectionState, phoenixSocketStatuses.CLOSING)
+        isEqual(connectionState, socketStatuses.CLOSED) ||
+        isEqual(connectionState, socketStatuses.CLOSING)
       ) {
         if (isFunction(dispatch)) {
           dispatch(
@@ -110,7 +110,10 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
     socket.onOpen(() => {
       dispatch(openPhoenixSocket());
     });
-    socket.onClose(() => dispatch(closePhoenixSocket()));
+    socket.onClose(() => {
+      dispatch(closePhoenixSocket());
+      dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+    });
     return {
       type: socketActionTypes.SOCKET_CONNECT,
       socket,

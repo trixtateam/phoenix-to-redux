@@ -7,12 +7,12 @@ and/or watch this [free video tutorial series](https://egghead.io/series/getting
 ## Imports
 ### reducers
 ```javascript
-import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixta/phoenix-to-redux';
 ```
 or
 ```javascript
 import { reducers } from '@trixta/phoenix-to-redux';
-reducers.createPhoenixReducer
+reducers.phoenixReducer
 ```
 ### constants
 ```javascript
@@ -20,7 +20,7 @@ import { constants } from '@trixta/phoenix-to-redux';
 ```
 or
 ```javascript
-import { channelStatuses, channelActionTypes, phoenixChannelStatuses,socketActionTypes, socketStatuses, phoenixSocketStatuses, PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN, PHOENIX_AGENT_ID } from '@trixta/phoenix-to-redux';
+import { channelStatuses, channelActionTypes, phoenixChannelStatuses,socketActionTypes, socketStatuses, PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN, PHOENIX_AGENT_ID } from '@trixta/phoenix-to-redux';
 ```
 ### actions
 ```javascript
@@ -60,13 +60,11 @@ import { isAuthenticated } from '@trixta/phoenix-to-redux';
 
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixta/phoenix-to-redux';
 import globalReducer from './containers/App/reducer';
 import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
-
-const phoenixReducer = createPhoenixReducer();
 
 export default function createReducer() {
   const rootReducer = combineReducers({

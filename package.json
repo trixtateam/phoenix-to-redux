@@ -59,13 +59,15 @@
     "lodash": "4.17.19",
     "phoenix": "1.5.4",
     "reselect": "4.0.0",
+    "immer": "3.0.0",
     "connected-react-router": "6.8.0"
   },
   "dependencies": {
+    "connected-react-router": "6.8.0",
+    "immer": "3.0.0",
     "lodash": ">=4",
     "phoenix": "1.5.4",
-    "reselect": "4.0.0",
-    "connected-react-router": "6.8.0"
+    "reselect": "4.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",

@@ -29,12 +29,10 @@ or yarn - whichever you prefer
 
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixta/phoenix-to-redux';
 import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
-
-const phoenixReducer = createPhoenixReducer();
 
 export default function createReducer() {
   const rootReducer = combineReducers({

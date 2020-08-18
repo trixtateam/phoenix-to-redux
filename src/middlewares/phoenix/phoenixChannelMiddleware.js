@@ -1,6 +1,5 @@
 import isEqual from 'lodash/isEqual';
 import merge from 'lodash/merge';
-import get from 'lodash/get';
 import {
   PHOENIX_GET_CHANNEL,
   PHOENIX_DISCONNECT_SOCKET,
@@ -14,7 +13,7 @@ import {
   channelStatuses,
   channelActionTypes,
 } from '../../constants';
-import { getUrlParameter, formatSocketDomain, hasValidSocket } from '../../utils';
+import { formatSocketDomain, hasValidSocket } from '../../utils';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -47,7 +46,6 @@ export const createPhoenixChannelMiddleware = ({
   getStorageFunction = getLocalStorageItem,
   removeStorageFunction = removeLocalStorageItem,
   setStorageFunction = setLocalStorageItem,
-  domainUrlParameter = 'domain',
 } = {}) => (store) => (next) => (action) => {
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
@@ -97,6 +95,7 @@ export const createPhoenixChannelMiddleware = ({
       if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
         socket.disconnect();
         dispatch(disconnectPhoenixSocket({ socket }));
+
         if (clearPhoenixDetails) {
           removeStorageFunction(PHOENIX_SOCKET_DOMAIN);
           removeStorageFunction(PHOENIX_TOKEN);
@@ -110,8 +109,10 @@ export const createPhoenixChannelMiddleware = ({
       const currentState = store.getState();
       const socket = selectPhoenixSocket(currentState);
       if (!hasValidSocket(socket)) {
+        console.info('PHOENIX_PUSH_TO_CHANNEL disconnectPhoenix invalid socket', socket);
         dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
       }
+      console.info('PHOENIX_PUSH_TO_CHANNEL socket', socket);
       const {
         channelTopic,
         endProgressDelay,
@@ -126,6 +127,7 @@ export const createPhoenixChannelMiddleware = ({
         loadingStatusKey,
       } = action.data;
       const channel = findChannelByName({ channelTopic, socket });
+      console.info('PHOENIX_PUSH_TO_CHANNEL channel', channel);
       if (channel) {
         if (!isNullOrEmpty(loadingStatusKey)) {
           dispatch(updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }));
@@ -197,15 +199,7 @@ export const createPhoenixChannelMiddleware = ({
       const { dispatch } = store;
       const currentState = store.getState();
       let socket = selectPhoenixSocket(currentState);
-      const routeLocation = currentState.router.location;
       const socketDomain = socket ? socket.endPoint : '';
-      const urlDomain = getUrlParameter({
-        search: get(routeLocation, 'search', ''),
-        parameterName: domainUrlParameter,
-      });
-      if (!isNullOrEmpty(urlDomain)) {
-        setStorageFunction(PHOENIX_SOCKET_DOMAIN, formatSocketDomain({ domainString: urlDomain }));
-      }
       const {
         requiresAuthentication,
         channelTopic,
@@ -220,8 +214,14 @@ export const createPhoenixChannelMiddleware = ({
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);
       const token = getStorageFunction(PHOENIX_TOKEN);
       const agentId = getStorageFunction(PHOENIX_AGENT_ID);
+      console.info('PHOENIX_GET_CHANNEL channelTopic', channelTopic);
+      console.info('PHOENIX_GET_CHANNEL domainUrl', domainUrl);
+      console.info('PHOENIX_GET_CHANNEL socket', socket);
       const loggedInDomain = `${domain}/websocket`;
+      console.info('PHOENIX_GET_CHANNEL loggedInDomain', loggedInDomain);
+      console.info('PHOENIX_GET_CHANNEL socketDomain', socketDomain);
       if (!isEqual(socketDomain, loggedInDomain)) {
+        console.info('PHOENIX_GET_CHANNEL notEqual');
         socket = false;
       }
       if (!socket || !socket.conn) {
@@ -236,6 +236,7 @@ export const createPhoenixChannelMiddleware = ({
         );
       }
       socket = selectPhoenixSocket(store.getState());
+      console.info('PHOENIX_GET_CHANNEL socket after', socket);
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,

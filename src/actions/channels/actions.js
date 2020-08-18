@@ -144,6 +144,7 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
  */
 export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
   if (!hasValidSocket(socket)) {
+    console.info('connectToPhoenixChannel disconnectPhoenix invalid socket', socket);
     dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
     return null;
   }

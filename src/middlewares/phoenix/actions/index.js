@@ -7,6 +7,7 @@ import {
 } from '../../../constants';
 import { formatSocketDomain } from '../../../utils';
 import { isNullOrEmpty } from '../../../helpers';
+import { disconnectPhoenix } from '../../../actions';
 
 /** Should an error occur from the phoenix socket, this action will be dispatched
  * @param {Object} params - parameters
@@ -87,6 +88,7 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
       domainUrl,
       requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
     );
+    socket.connect();
     socket.onError(() => {
       const connectionState = socket.connectionState();
       if (
@@ -99,7 +101,7 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
             socketState: connectionState,
           })
         );
-        dispatch(disconnectPhoenixSocket({ socket }));
+        dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
       }
     });
     socket.onOpen(() => {
@@ -107,13 +109,14 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
     });
     socket.onClose(() => {
       dispatch(closePhoenixSocket());
-      dispatch(disconnectPhoenixSocket({ socket }));
+      dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
     });
-    socket.connect();
+
     return {
       type: socketActionTypes.SOCKET_CONNECT,
       socket,
     };
   }
-  return disconnectPhoenixSocket({ socket });
+  console.info('setUpSocket disconnectPhoenix no url', socket);
+  return disconnectPhoenix({ clearPhoenixDetails: true });
 }

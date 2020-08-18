@@ -5,9 +5,12 @@
  */
 import produce from 'immer';
 import { socketActionTypes, socketStatuses, channelActionTypes } from '../constants';
+import { getDomainKeyFromUrl } from '../helpers';
 
 export const initialState = {
   socket: false,
+  domain: false,
+  details: false,
   channels: {},
   socketStatus: false,
   presentUsers: false,
@@ -29,6 +32,8 @@ export const phoenixReducer = (state = initialState, action) =>
       case socketActionTypes.SOCKET_CONNECT:
         draft.socketStatus = socketStatuses.CONNECTING;
         draft.message = false;
+        draft.details = action.socket.params();
+        draft.domain = getDomainKeyFromUrl({ domainUrl: action.socket.endPoint });
         draft.socket = action.socket;
         break;
       case socketActionTypes.SOCKET_CLOSE:

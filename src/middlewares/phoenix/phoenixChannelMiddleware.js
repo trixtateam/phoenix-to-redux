@@ -32,8 +32,7 @@ import {
 } from '../../actions';
 
 import { disconnectPhoenixSocket, updatePhoenixChannelLoadingStatus, setUpSocket } from './actions';
-
-const getSocketState = (state) => state.phoenix.socket;
+import { selectPhoenixSocket } from '../../selectors/socket/selectors';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -56,7 +55,7 @@ export const createPhoenixChannelMiddleware = ({
       const domain = getStorageFunction(PHOENIX_SOCKET_DOMAIN);
       const token = getStorageFunction(PHOENIX_TOKEN);
       const agentId = getStorageFunction(PHOENIX_AGENT_ID);
-      const socket = getSocketState(store.getState());
+      const socket = selectPhoenixSocket(store.getState());
       if (!socket && domain && token && agentId) {
         dispatch(
           setUpSocket({
@@ -92,7 +91,7 @@ export const createPhoenixChannelMiddleware = ({
     case PHOENIX_DISCONNECT_SOCKET: {
       const { dispatch } = store;
       const currentState = store.getState();
-      const socket = getSocketState(currentState);
+      const socket = selectPhoenixSocket(currentState);
       const { clearPhoenixDetails } = action.data;
 
       if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
@@ -109,7 +108,7 @@ export const createPhoenixChannelMiddleware = ({
     case PHOENIX_PUSH_TO_CHANNEL: {
       const { dispatch } = store;
       const currentState = store.getState();
-      const socket = getSocketState(currentState);
+      const socket = selectPhoenixSocket(currentState);
       if (!hasValidSocket(socket)) {
         dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
       }
@@ -197,7 +196,7 @@ export const createPhoenixChannelMiddleware = ({
     case PHOENIX_GET_CHANNEL: {
       const { dispatch } = store;
       const currentState = store.getState();
-      let socket = getSocketState(currentState);
+      let socket = selectPhoenixSocket(currentState);
       const routeLocation = currentState.router.location;
       const socketDomain = socket ? socket.endPoint : '';
       const urlDomain = getUrlParameter({
@@ -236,7 +235,7 @@ export const createPhoenixChannelMiddleware = ({
           })
         );
       }
-
+      socket = selectPhoenixSocket(store.getState());
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,
@@ -244,7 +243,7 @@ export const createPhoenixChannelMiddleware = ({
           events,
           token: channelToken,
           responseActionType,
-          socket: store.getState().phoenix.socket,
+          socket,
         })
       );
 

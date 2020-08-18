@@ -1,12 +1,10 @@
 import { Socket } from 'phoenix';
 import isEqual from 'lodash/isEqual';
-import isFunction from 'lodash/isFunction';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
   socketStatuses,
 } from '../../../constants';
-import { disconnectPhoenix } from '../../../actions';
 import { formatSocketDomain } from '../../../utils';
 import { isNullOrEmpty } from '../../../helpers';
 
@@ -89,22 +87,19 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
       domainUrl,
       requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
     );
-    socket.connect();
     socket.onError(() => {
       const connectionState = socket.connectionState();
       if (
         isEqual(connectionState, socketStatuses.CLOSED) ||
         isEqual(connectionState, socketStatuses.CLOSING)
       ) {
-        if (isFunction(dispatch)) {
-          dispatch(
-            phoenixSocketError({
-              message: 'Connection to server lost.',
-              socketState: connectionState,
-            })
-          );
-          dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
-        }
+        dispatch(
+          phoenixSocketError({
+            message: 'Connection to server lost.',
+            socketState: connectionState,
+          })
+        );
+        dispatch(disconnectPhoenixSocket({ socket }));
       }
     });
     socket.onOpen(() => {
@@ -112,12 +107,13 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
     });
     socket.onClose(() => {
       dispatch(closePhoenixSocket());
-      dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+      dispatch(disconnectPhoenixSocket({ socket }));
     });
+    socket.connect();
     return {
       type: socketActionTypes.SOCKET_CONNECT,
       socket,
     };
   }
-  return disconnectPhoenix({ clearPhoenixDetails: true });
+  return disconnectPhoenixSocket({ socket });
 }

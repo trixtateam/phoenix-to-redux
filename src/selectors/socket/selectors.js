@@ -3,10 +3,12 @@ import { initialState } from '../../reducers/phoenixReducer';
 
 const selectPhoenix = (state) => state.phoenix || initialState;
 
+const selectPhoenixSocket = (state) => state.phoenix.socket;
+
 const makeSelectPhoenixSocket = () =>
   createSelector(selectPhoenix, (phoenixState) => phoenixState.socket);
 
 const makeSelectPhoenixSocketStatus = () =>
   createSelector(selectPhoenix, (phoenixState) => phoenixState.socketStatus);
 
-export { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus };
+export { selectPhoenixSocket, makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus };

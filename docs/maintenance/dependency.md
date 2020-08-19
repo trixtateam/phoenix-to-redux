@@ -75,7 +75,6 @@ Identify problems that occur and try to resolve them by rolling back the respect
 
 ```
  phoenix                      1.3.4  →    1.5.4
- connected-react-router       4.5.0  →    6.8.0
  @rollup/plugin-commonjs    ^13.0.2  →  ^14.0.0
  eslint                      5.16.0  →    7.6.0
  eslint-config-airbnb        17.1.1  →   18.2.0

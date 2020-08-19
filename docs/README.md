@@ -5,7 +5,6 @@
   - [PhoenixJS](js/phoenix-js.md)
   - [Redux](js/redux.md)
   - [Reselect](js/reselect.md)
-  - [Routing](js/routing.md)
 
 - [Maintenance](maintenance)
   - [Dependency Update](maintenance/dependency.md)
@@ -92,12 +91,12 @@ export default function configureStore(initialState = {}) {
   return store;
 }
 ```
-## 3. Setup Login Details
+## 3. Setup Socket Details
 ```javascript
 import { put } from 'redux-saga/effects';
-import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
+import {  connectPhoenix } from '@trixta/phoenix-to-redux';
 // update login details
-yield put(updatePhoenixLoginDetails({ domain: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
+yield put(connectPhoenix({ domainUrl: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
 ## Redux Saga Example
@@ -129,10 +128,9 @@ import { routePaths } from '../../route-paths';
 import { put, select, takeLatest } from 'redux-saga/effects';
 import {
   disconnectPhoenix,
-  updatePhoenixLoginDetails,
+  connectPhoenix
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
-  formatSocketDomain,
   getUrlParameter,
 } from '@trixta/phoenix-to-redux';
 import {
@@ -161,7 +159,7 @@ export function* loginSaga({ data }) {
       })
     );
     // push the data to 'authentication' channel topic
-    // domainDetails will be available on the response because its pass as additionalData
+    // domain will be available on the response because its pass as additionalData
     // on OK response from channel dispatch REQUEST_LOGIN_SUCCESS
     // on error response from channel dispatch REQUEST_LOGIN_FAILURE
      // on timeout response from channel dispatch REQUEST_LOGIN_TIMEOUT
@@ -172,7 +170,7 @@ export function* loginSaga({ data }) {
       channelResponseEvent: REQUEST_LOGIN_SUCCESS,
       channelErrorResponseEvent: REQUEST_LOGIN_FAILURE,
       requestData: data,
-      additionalData: { domainDetails },
+      additionalData: { domain },
       dispatchChannelError: true,
       customerTimeoutEvent: REQUEST_LOGIN_TIMEOUT,
     });
@@ -207,23 +205,21 @@ import {
 export function* handleLoginSuccessSaga({ data }) {
   // on success of login take the response data
   if (data) {
-    const routeLocation = yield select(makeSelectRouteLocation());
-    const redirectUrl = getAuthenticationRedirectUrl({
-      routeLocation,
-      defaultUrl: routePaths.HOME_PAGE,
-    });
+
     // eslint-disable-next-line camelcase
     // additionalData you passed
-    const domainDetails = _.get(data, 'domainDetails');
+    const domain = _.get(data, 'domain');
     const agent_id = _.get(data, 'agent_id', '');
     const identity = _.get(data, 'identity', '');
     const jwt = _.get(data, 'jwt', '');
     // eslint-disable-next-line camelcase
     // update phoenix storage keys for future phoenix socket channel calls
-    yield put(updatePhoenixLoginDetails({ agentId: agent_id, token: jwt }));
-    // close unauthenticated socket, future pushToPhoenixChannel,getPhoenixChannel callls will now use the updated login details
+
+    // close unauthenticated socket, future pushToPhoenixChannel
     yield put(disconnectPhoenix());
-    yield put(push(redirectUrl));
+    // connect authenticated phoenix socket
+     yield put(connectPhoenix({ domainUrl:domain, agentId: agent_id, token: jwt }));
+    yield put(push('/home'));
   } else {
     yield put(loginFailed());
   }

@@ -18,9 +18,18 @@ export function disconnectPhoenix({ clearPhoenixDetails = false } = {}) {
 /**
  * Will attempt to connect socket with the current stored credentials
  * in storage
+ * @param {Object} params - parameters
+ * @param {String} parmas.domainUrl - domain for socket
+ * @param {String=} [parmas.token = null] parmas.token - token for socket
+ * @param {String} parmas.agentId - agentId for socket
  */
-export function connectPhoenix() {
+export function connectPhoenix({ domainUrl, token = null, agentId }) {
   return {
     type: PHOENIX_CONNECT_SOCKET,
+    data: {
+      domainUrl,
+      token,
+      agentId,
+    },
   };
 }

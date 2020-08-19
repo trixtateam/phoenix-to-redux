@@ -9,5 +9,8 @@ export const socketActionTypes = {
 export const socketStatuses = {
   OPEN: 'open',
   CLOSING: 'closing',
+  CONNECTED: 'connected',
+  CONNECTING: 'connecting',
   CLOSED: 'closed',
+  ERROR: 'error',
 };

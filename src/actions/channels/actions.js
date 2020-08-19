@@ -33,7 +33,7 @@ export const syncPresentUsers = (dispatch, presences) => {
 };
 
 /**
- * Clears all local storage details for phoenix socket
+ * Clears all stored details for phoenix socket
  * connection
  */
 export function clearPhoenixLoginDetails() {
@@ -45,16 +45,14 @@ export function clearPhoenixLoginDetails() {
 /**
  * Updates the saved phoenix socket connection paramaters in storage
  * @param {Object} params - parameters
- * @param {string?} params.domain - domain for phoenix socket
- * @param {string?} params.agentId - agent id for phoenix socket
- * @param {string?} params.token - authentication token for phoenix socket
+ * @param {string=} params.agentId - agent id for phoenix socket
+ * @param {string=} params.token - authentication token for phoenix socket
  */
-export function updatePhoenixLoginDetails({ domain = null, agentId = null, token = null }) {
+export function updatePhoenixLoginDetails({ agentId = null, token = null }) {
   return {
     type: PHOENIX_UPDATE_LOGIN_DETAILS,
     data: {
       agentId,
-      domain,
       token,
     },
   };
@@ -121,7 +119,7 @@ export function phoenixChannelTimeOut({ error, channelTopic }) {
  * @param {Object} params - parameters
  * @param {string} params.dispatch
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string?} params.loadingStatusKey - key to setting loading status on
+ * @param {string=} [params.loadingStatusKey=null] params.loadingStatusKey - key to setting loading status on
  */
 export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = null }) {
   return {
@@ -139,12 +137,11 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
  * @param {Function} params.dispatch
  * @param {Object} params.socket - phoenix socket
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string?} params.token - token for channel
+ * @param {string=} [params.token=null] params.token - token for channel
  * @param {Function} params.dispatch - React dispatcher
  */
 export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
   if (!hasValidSocket(socket)) {
-    console.info('connectToPhoenixChannel disconnectPhoenix invalid socket', socket);
     dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
     return null;
   }
@@ -168,11 +165,11 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
  * Connects to given channel name and listens on eventNames and dispatches response to given corresponding eventActionTypes,
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
+ * @param {Object[]=} [params.events=[]]  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
- * @param {String?} params.token - token for channel
+ * @param {String=} [params.token = null] params.token - token for channel
  * @param {Object} params.socket - phoenix socket
  * @returns {Object}
  */

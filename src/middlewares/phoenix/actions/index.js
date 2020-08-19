@@ -6,19 +6,21 @@ import {
   socketStatuses,
 } from '../../../constants';
 import { formatSocketDomain } from '../../../utils';
-import { isNullOrEmpty } from '../../../helpers';
+import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
 import { disconnectPhoenix } from '../../../actions';
 
 /** Should an error occur from the phoenix socket, this action will be dispatched
  * @param {Object} params - parameters
  * @param {string} params.message
  * @param {string} params.socketState
+ * @param {string} params.domainKey - domain for socket
  */
-export function phoenixSocketError({ message, socketState }) {
+export function phoenixSocketError({ message, socketState, domainKey }) {
   return {
     type: socketActionTypes.SOCKET_ERROR,
     error: message,
     data: {
+      domainKey,
       socketState,
     },
   };
@@ -27,10 +29,16 @@ export function phoenixSocketError({ message, socketState }) {
 /**
  * Should the socket attempt to open, this action is dispatched to the
  * phoenix reducer
+ * @param {Object} params - parameters
+ * @param {string} params.domainKey - domain for socket
+ * @param {Object} params.socket = socket being opened
  */
-export function openPhoenixSocket() {
+export function openPhoenixSocket({ socket, domainKey }) {
   return {
     type: socketActionTypes.SOCKET_OPEN,
+    isAnonymous: !socket.params().token,
+    socket,
+    domainKey,
   };
 }
 
@@ -38,10 +46,15 @@ export function openPhoenixSocket() {
  * Should the socket attempt to close, this action is dispatched to the
  * phoenix reducer
  * @param {Object} params - parameters
+ * @param {Object} params.socket = socket being closed
+ * @param {string} params.domainKey - domain for socket
  */
-export function closePhoenixSocket() {
+export function closePhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_CLOSE,
+    isAnonymous: !socket.params().token,
+    domainKey,
+    socket,
   };
 }
 
@@ -49,10 +62,13 @@ export function closePhoenixSocket() {
  * Disconnects the phoenix socket
  * @param {Object} params - parameters
  * @param {Object} params.socket = socket being disconnected
+ * @param {string} params.domainKey - domain for socket
  */
-export function disconnectPhoenixSocket({ socket }) {
+export function disconnectPhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_DISCONNECT,
+    isAnonymous: !socket.params().token,
+    domainKey,
     socket,
   };
 }
@@ -61,7 +77,7 @@ export function disconnectPhoenixSocket({ socket }) {
  * Update the loadingStatusKey for the channelTopic
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string?} params.loadingStatusKey - key to setting loading status on
+ * @param {string=} [params.loadingStatusKey = null] params.loadingStatusKey - key to setting loading status on
  */
 export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }) {
   return {
@@ -78,16 +94,19 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
  * @param {string} params.token - authentication for socket
  * @param {string} params.domain - socket url to connect to
  * @param {string} params.agentId - agent id to connect socket
- * @param {?boolean} params.requiresAuthentication - determines if the socket needs authentication params
+ * @param {boolean=} [params.requiresAuthentication = true] params.requiresAuthentication - determines if the socket needs authentication params
  */
 export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
   let socket = false;
+  console.info('setUpSocket socket domain', domain);
+
   if (!isNullOrEmpty(domainUrl)) {
     socket = new Socket(
       domainUrl,
       requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
     );
+    console.info('setUpSocket socket socket', socket);
     socket.connect();
     socket.onError(() => {
       const connectionState = socket.connectionState();
@@ -97,6 +116,7 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
       ) {
         dispatch(
           phoenixSocketError({
+            domainKey: getDomainKeyFromUrl({ domainUrl }),
             message: 'Connection to server lost.',
             socketState: connectionState,
           })
@@ -105,18 +125,24 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
       }
     });
     socket.onOpen(() => {
-      dispatch(openPhoenixSocket());
+      dispatch(openPhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
     });
     socket.onClose(() => {
-      dispatch(closePhoenixSocket());
-      dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+      dispatch(closePhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
+      dispatch(
+        disconnectPhoenix({
+          clearPhoenixDetails: true,
+        })
+      );
     });
 
     return {
       type: socketActionTypes.SOCKET_CONNECT,
       socket,
+      domainKey: getDomainKeyFromUrl({ domainUrl }),
     };
   }
-  console.info('setUpSocket disconnectPhoenix no url', socket);
-  return disconnectPhoenix({ clearPhoenixDetails: true });
+  return disconnectPhoenix({
+    clearPhoenixDetails: true,
+  });
 }

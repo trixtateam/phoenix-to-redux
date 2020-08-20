@@ -19,22 +19,13 @@ or yarn - whichever you prefer
  */
 
 import { combineReducers } from 'redux';
-import { connectRouter } from 'connected-react-router';
-import { createPhoenixReducer } from '@trixta/phoenix-to-redux';
-import createHistory from 'history/createBrowserHistory';
-
-const history = createHistory();
-
-const phoenixReducer = createPhoenixReducer();
+import { phoenixReducer } from '@trixta/phoenix-to-redux';
 
 export default function createReducer() {
   const rootReducer = combineReducers({
     phoenix: phoenixReducer,
   });
-
-  // Wrap the root reducer and return a new root reducer with router state
-  const mergeWithRouterState = connectRouter(history);
-  return mergeWithRouterState(rootReducer);
+  return rootReducer;
 }
 ```
 
@@ -50,10 +41,8 @@ const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
 export default function configureStore(initialState = {}) {
   // Create the store with two middlewares
   // 1. phoenixChannelMiddleWare: Makes redux connected to phoenix channels
-  // 2. routerMiddleware: Syncs the location/URL path to the state
   const middlewares = [
     phoenixChannelMiddleWare,
-    routerMiddleware(history),
   ];
 
   const enhancers = [applyMiddleware(...middlewares)];
@@ -85,12 +74,12 @@ export default function configureStore(initialState = {}) {
   return store;
 }
 ```
-## 3. Setup Login Details
+## 3. Setup Socket Details
 ```javascript
 import { put } from 'redux-saga/effects';
-import {  updatePhoenixLoginDetails } from '@trixta/phoenix-to-redux';
+import {  connectPhoenix } from '@trixta/phoenix-to-redux';
 // update login details
-yield put(updatePhoenixLoginDetails({ domain: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
+yield put(connectPhoenix({ domainUrl: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
 ```
 
 ## Communicate with Phoenix

@@ -35,9 +35,3 @@ module.exports.middlewares = { ...middlewares };
 module.exports.constants = {
   ...constants,
 };
-
-module.exports.storageKeys = {
-  PHOENIX_AGENT_ID: constants.PHOENIX_AGENT_ID,
-  PHOENIX_TOKEN: constants.PHOENIX_TOKEN,
-  PHOENIX_SOCKET_DOMAIN: constants.PHOENIX_SOCKET_DOMAIN,
-};

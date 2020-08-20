@@ -3,16 +3,9 @@ import { PHOENIX_DISCONNECT_SOCKET, PHOENIX_CONNECT_SOCKET } from '../../constan
 
 /**
  * disconnects the socket and removes the socket from the phoenix reducer
- * @param {Object} params - parameters
- * @param {boolean?} params.clearPhoenixDetails - determines if the saved login details should be cleared. false by default
  */
-export function disconnectPhoenix({ clearPhoenixDetails = false } = {}) {
-  return {
-    type: PHOENIX_DISCONNECT_SOCKET,
-    data: {
-      clearPhoenixDetails,
-    },
-  };
+export function disconnectPhoenix() {
+  return { type: PHOENIX_DISCONNECT_SOCKET };
 }
 
 /**

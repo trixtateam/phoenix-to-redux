@@ -11,5 +11,3 @@ export const PHOENIX_PUSH_TO_CHANNEL = 'phoenix-to-redux/PHOENIX_PUSH_TO_CHANNEL
 export const PHOENIX_GET_CHANNEL = 'phoenix-to-redux/PHOENIX_GET_CHANNEL';
 export const PHOENIX_CONNECT_SOCKET = 'phoenix-to-redux/PHOENIX_CONNECT_SOCKET';
 export const PHOENIX_DISCONNECT_SOCKET = 'phoenix-to-redux/PHOENIX_DISCONNECT_SOCKET';
-export const PHOENIX_CLEAR_LOGIN_DETAILS = 'phoenix-to-redux/PHOENIX_CLEAR_LOGIN';
-export const PHOENIX_UPDATE_LOGIN_DETAILS = 'phoenix-to-redux/PHOENIX_UPDATE_LOGIN_DETAILS';

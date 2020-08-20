@@ -1,14 +1,10 @@
 /* eslint-disable no-console */
-import { Presence } from 'phoenix';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import {
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_GET_CHANNEL,
   PHOENIX_PUSH_TO_CHANNEL,
-  PHOENIX_CLEAR_LOGIN_DETAILS,
-  PHOENIX_UPDATE_LOGIN_DETAILS,
-  phoenixChannelStatuses,
   channelActionTypes,
   channelStatuses,
   NO_PHOENIX_CHANNEL_FOUND,
@@ -18,45 +14,6 @@ import {
 import { hasValidSocket } from '../../utils';
 import { isNullOrEmpty } from '../../helpers';
 import { disconnectPhoenix } from '../sockets/actions';
-
-/**
- * When joining a channel will sync the present users in the channel
- * @param {function} dispatch
- * @param {Object} presences
- */
-export const syncPresentUsers = (dispatch, presences) => {
-  const presentUsers = [];
-  Presence.list(presences, (id, { metas: [first] }) => first.user).map((user) =>
-    presentUsers.push(user)
-  );
-  dispatch({ type: channelActionTypes.CHANNEL_PRESENCE_UPDATE, presentUsers });
-};
-
-/**
- * Clears all stored details for phoenix socket
- * connection
- */
-export function clearPhoenixLoginDetails() {
-  return {
-    type: PHOENIX_CLEAR_LOGIN_DETAILS,
-  };
-}
-
-/**
- * Updates the saved phoenix socket connection paramaters in storage
- * @param {Object} params - parameters
- * @param {string=} params.agentId - agent id for phoenix socket
- * @param {string=} params.token - authentication token for phoenix socket
- */
-export function updatePhoenixLoginDetails({ agentId = null, token = null }) {
-  return {
-    type: PHOENIX_UPDATE_LOGIN_DETAILS,
-    data: {
-      agentId,
-      token,
-    },
-  };
-}
 
 /**
  * Response after joining a phoenix channel
@@ -71,17 +28,45 @@ export function phoenixChannelJoin({ response, channel }) {
     channel,
   };
 }
+
+/**
+ * Invoked only in two cases. 1) the channel explicitly closed on the server, or 2). The client explicitly closed, by calling channel.leave()
+ * @param {Object} params - parameters
+ * @param {Object} params.channel - phoenix channel
+ */
+export function phoenixChannelClose({ channel }) {
+  return {
+    type: channelActionTypes.CHANNEL_CLOSE,
+    channel,
+  };
+}
 /**
  * Response after pushing a request to phoenix channel with an error
  * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
+ * @param {string} params.channel - phoenix channel
  * @param {string} params.channelTopic - phoenix channel topic
  */
-export function phoenixChannelError({ error, channelTopic }) {
+export function phoenixChannelPushError({ error, channelTopic, channel }) {
   return {
     type: channelActionTypes.CHANNEL_PUSH_ERROR,
+    channel,
     channelTopic,
     error,
+  };
+}
+
+/**
+ * Invoked if the socket connection drops, or the channel crashes on the server. In either case, a channel rejoin is attempted automatically in an exponential backoff manner
+ * @param {Object} params - parameters
+ * @param {string} params.channel - phoenix channel
+ * @param {string} params.channelTopic - phoenix channel topic
+ */
+export function phoenixChannelError({ channelTopic, channel }) {
+  return {
+    type: channelActionTypes.CHANNEL_ERROR,
+    channel,
+    channelTopic,
   };
 }
 
@@ -142,22 +127,19 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
  */
 export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
   if (!hasValidSocket(socket)) {
-    dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+    dispatch(disconnectPhoenix());
     return null;
   }
 
   const channel = socket.channel(channelTopic, token ? { token } : null);
-  let presences = {};
-
-  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_STATE, (state) => {
-    presences = Presence.syncState(presences, state);
-    // TODO implement channel presence
+  channel.onClose(() => {
+    dispatch(phoenixChannelClose({ channel }));
   });
 
-  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_CHANGE, (diff) => {
-    presences = Presence.syncDiff(presences, diff);
-    // TODO implement channel presence
+  channel.onError(() => {
+    dispatch(phoenixChannelError({ channel, channelTopic }));
   });
+
   return channel;
 }
 
@@ -350,7 +332,7 @@ export function pushToPhoenixChannel({
  */
 export function removeChannel({ dispatch, channelTopic, socket }) {
   if (!hasValidSocket(socket)) {
-    dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+    dispatch(disconnectPhoenix());
     return { type: INVALID_SOCKET };
   }
   const channel = findChannelByName({ channelTopic, socket });

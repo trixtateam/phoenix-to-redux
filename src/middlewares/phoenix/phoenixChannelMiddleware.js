@@ -10,16 +10,15 @@ import {
   socketStatuses,
 } from '../../constants';
 import { formatSocketDomain, hasValidSocket } from '../../utils';
-import { isNullOrEmpty } from '../../helpers';
+import { isNullOrEmpty, getDomainKeyFromUrl } from '../../helpers';
 
 import {
   connectToPhoenixChannelForEvents,
   findChannelByName,
-  phoenixChannelError,
+  phoenixChannelPushError,
   endPhoenixChannelProgress,
   phoenixChannelTimeOut,
   disconnectPhoenix,
-  clearPhoenixLoginDetails,
 } from '../../actions';
 
 import { disconnectPhoenixSocket, updatePhoenixChannelLoadingStatus, setUpSocket } from './actions';
@@ -38,9 +37,28 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
     case PHOENIX_CONNECT_SOCKET: {
       const { dispatch } = store;
       const { domainUrl, token, agentId } = action.data;
-      console.info('PHOENIX_CONNECT_SOCKET domainUrl', domainUrl);
-      const socket = selectPhoenixSocket(store.getState());
-      console.info('PHOENIX_CONNECT_SOCKET socket', socket);
+
+      const currentState = store.getState();
+      let socket = selectPhoenixSocket(currentState);
+      const activeDomainKey = selectPhoenixSocketDomain(currentState);
+      const isAnonymous = socket && !socket.params().token;
+      if (isAnonymous) {
+        const domainKey = getDomainKeyFromUrl({ domainUrl });
+        if (isEqual(domainKey, activeDomainKey)) {
+          socket.disconnect(null, 1000, 'Upgraded socket to authenticated session');
+          dispatch(
+            setUpSocket({
+              dispatch,
+              domain: domainUrl,
+              token,
+              agentId,
+              requiresAuthentication: true,
+            })
+          );
+        }
+      }
+
+      socket = selectPhoenixSocket(store.getState());
       if (!socket && domainUrl && token && agentId) {
         dispatch(
           setUpSocket({
@@ -59,15 +77,9 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const currentState = store.getState();
       const socket = selectPhoenixSocket(currentState);
       const domainKey = selectPhoenixSocketDomain(currentState);
-      const { clearPhoenixDetails } = action.data;
-      console.info('PHOENIX_DISCONNECT_SOCKET socket', socket);
       if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
         socket.disconnect();
         dispatch(disconnectPhoenixSocket({ domainKey, socket }));
-
-        if (clearPhoenixDetails) {
-          dispatch(clearPhoenixLoginDetails());
-        }
       }
       return store.getState();
     }
@@ -76,11 +88,8 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const currentState = store.getState();
       const socket = selectPhoenixSocket(currentState);
       if (!hasValidSocket(socket)) {
-        console.info('PHOENIX_PUSH_TO_CHANNEL disconnectPhoenix invalid socket', socket);
-        dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+        dispatch(disconnectPhoenix());
       }
-      console.info('PHOENIX_PUSH_TO_CHANNEL socket', socket);
-
       const {
         channelTopic,
         endProgressDelay,
@@ -126,7 +135,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           })
           .receive(channelStatuses.CHANNEL_ERROR, (data) => {
             if (dispatchChannelError) {
-              dispatch(phoenixChannelError({ error: data, channelTopic }));
+              dispatch(phoenixChannelPushError({ error: data, channelTopic }));
             }
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
             if (channelErrorResponseEvent) {
@@ -178,29 +187,18 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         channelToken,
         responseActionType,
       } = action.data;
-      console.info('PHOENIX_GET_CHANNEL phoenixDomain', phoenixDomain);
-      console.info('PHOENIX_GET_CHANNEL socketDetails', socketDetails);
-      console.info('PHOENIX_GET_CHANNEL channelTopic', channelTopic);
-      console.info('PHOENIX_GET_CHANNEL requiresAuthentication', requiresAuthentication);
-      console.info('PHOENIX_GET_CHANNEL domainUrl', domainUrl);
-      const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
-      console.info('PHOENIX_GET_CHANNEL domain', domain);
-      const token = socketDetails.token ? socketDetails.token : null;
-      console.info('PHOENIX_GET_CHANNEL token', token);
-      const agentId = socketDetails.agent_id ? socketDetails.agent_id : null;
-      console.info('PHOENIX_GET_CHANNEL agentId', agentId);
 
+      const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
+      const token = socketDetails.token ? socketDetails.token : null;
+      const agentId = socketDetails.agent_id ? socketDetails.agent_id : null;
       const loggedInDomain = `${domain}/websocket`;
+
       if (!isEqual(socketDomain, loggedInDomain)) {
         socket = false;
       }
 
-      console.info('PHOENIX_GET_CHANNEL socketDomain', socketDomain);
-      console.info('PHOENIX_GET_CHANNEL loggedInDomain', loggedInDomain);
-
       const connectionState = socket && socket.connectionState();
       if (!socket || (connectionState === socketStatuses.CLOSED && socket.closeWasClean)) {
-        console.info('PHOENIX_GET_CHANNEL no socket');
         dispatch(
           setUpSocket({
             dispatch,
@@ -213,7 +211,6 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         socket = selectPhoenixSocket(store.getState());
       }
 
-      console.info('PHOENIX_GET_CHANNEL socket', socket);
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,

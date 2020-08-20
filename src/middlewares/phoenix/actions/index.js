@@ -15,10 +15,10 @@ import { disconnectPhoenix } from '../../../actions';
  * @param {string} params.socketState
  * @param {string} params.domainKey - domain for socket
  */
-export function phoenixSocketError({ message, socketState, domainKey }) {
+export function phoenixSocketError({ error, socketState, domainKey }) {
   return {
     type: socketActionTypes.SOCKET_ERROR,
-    error: message,
+    error,
     data: {
       domainKey,
       socketState,
@@ -99,41 +99,33 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
 export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
   let socket = false;
-  console.info('setUpSocket socket domain', domain);
-
   if (!isNullOrEmpty(domainUrl)) {
     socket = new Socket(
       domainUrl,
       requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
     );
-    console.info('setUpSocket socket socket', socket);
     socket.connect();
-    socket.onError(() => {
+    socket.onError((error) => {
       const connectionState = socket.connectionState();
       if (
         isEqual(connectionState, socketStatuses.CLOSED) ||
         isEqual(connectionState, socketStatuses.CLOSING)
       ) {
-        dispatch(
-          phoenixSocketError({
-            domainKey: getDomainKeyFromUrl({ domainUrl }),
-            message: 'Connection to server lost.',
-            socketState: connectionState,
-          })
-        );
-        dispatch(disconnectPhoenix({ clearPhoenixDetails: true }));
+        dispatch(disconnectPhoenix());
       }
+      dispatch(
+        phoenixSocketError({
+          domainKey: getDomainKeyFromUrl({ domainUrl }),
+          error,
+          socketState: connectionState,
+        })
+      );
     });
     socket.onOpen(() => {
       dispatch(openPhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
     });
     socket.onClose(() => {
       dispatch(closePhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
-      dispatch(
-        disconnectPhoenix({
-          clearPhoenixDetails: true,
-        })
-      );
     });
 
     return {
@@ -142,7 +134,6 @@ export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, 
       domainKey: getDomainKeyFromUrl({ domainUrl }),
     };
   }
-  return disconnectPhoenix({
-    clearPhoenixDetails: true,
-  });
+
+  return disconnectPhoenix();
 }

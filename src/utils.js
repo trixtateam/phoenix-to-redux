@@ -4,21 +4,6 @@ import isUndefined from 'lodash/isUndefined';
 import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from './constants';
 
 /**
- * Searches the object and returns the value associated for the given parameterName
- * @param{Object} search - search object of the location
- * @param{string} parameterName - name of parameter
- * @param defaultValue - default value to return if not found
- * @returns {string}
- */
-export function getUrlParameter({ search, parameterName, defaultValue = '' }) {
-  // eslint-disable-next-line no-useless-escape
-  const parameter = parameterName.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-  const regex = new RegExp(`[\\?&]${parameter}=([^&#]*)`);
-  const results = regex.exec(search);
-  return results === null ? defaultValue : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-/**
  * Based on the given domain parameter will format and return the correct space domain format
  * @param{string} domainString - domain string
  * @returns string

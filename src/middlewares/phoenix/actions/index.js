@@ -1,76 +1,194 @@
 import { Socket } from 'phoenix';
 import isEqual from 'lodash/isEqual';
+import find from 'lodash/find';
+import get from 'lodash/get';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
   socketStatuses,
+  PHOENIX_CHANNEL_UPDATED,
+  INVALID_SOCKET,
+  channelActionTypes,
+  PHOENIX_CHANNEL_END_PROGRESS,
+  NO_PHOENIX_CHANNEL_FOUND,
+  channelStatuses,
 } from '../../../constants';
-import { formatSocketDomain } from '../../../utils';
+import { formatSocketDomain, hasValidSocket } from '../../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
 import { disconnectPhoenix } from '../../../actions';
+import {
+  phoenixChannelClose,
+  phoenixChannelError,
+  phoenixChannelJoin,
+  phoenixChannelJoinError,
+  phoenixChannelTimeOut,
+} from './channel';
+import { phoenixSocketError, openPhoenixSocket, closePhoenixSocket } from './socket';
 
-/** Should an error occur from the phoenix socket, this action will be dispatched
+/**
+ * Disconnects the channel by removing it from the socket
+ *
  * @param {Object} params - parameters
- * @param {string} params.message
- * @param {string} params.socketState
- * @param {string} params.domainKey - domain for socket
+ * @param {Function} params.dispatch
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {Object} params.socket - phoenix socket
  */
-export function phoenixSocketError({ error, socketState, domainKey }) {
+export function removeChannel({ dispatch, channelTopic, socket }) {
+  if (!hasValidSocket(socket)) {
+    dispatch(disconnectPhoenix());
+    return { type: INVALID_SOCKET };
+  }
+  const channel = findChannelByName({ channelTopic, socket });
+  leavePhoenixChannel({ channelTopic, socket });
+  if (channel) {
+    socket.remove(channel);
+  }
   return {
-    type: socketActionTypes.SOCKET_ERROR,
-    error,
+    type: channelActionTypes.CHANNEL_LEAVE,
+    channel,
+  };
+}
+
+/**
+ * Searches the connected socket channels by the channelTopic and returns the found channel
+ * @param {Object} params - parameters
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {Object} params.socket - phoenix socket
+ * @returns {T} Channel
+ */
+export function findChannelByName({ channelTopic, socket }) {
+  if (!hasValidSocket(socket)) {
+    return null;
+  }
+  return socket.channels && socket.channels.find((channel) => channel.topic === channelTopic);
+}
+
+/**
+ * Searches the connected socket channels by the channelTopic and removes the channel by un-subscribing for the given topic
+ * @param {Object} params - parameters
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {Object} params.socket - phoenix socket
+ */
+export function leavePhoenixChannel({ channelTopic, socket }) {
+  const channel = findChannelByName({ channelTopic, socket });
+  if (channel) {
+    channel.leave();
+  }
+}
+
+/**
+ * When a response from the phoenix channel is received this action is dispatched to indicate
+ * the progress is completed for the loadingStatusKey passed.
+ * @param {Object} params - parameters
+ * @param {string} params.dispatch
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string=} [params.loadingStatusKey=null] params.loadingStatusKey - key to setting loading status on
+ */
+export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = null }) {
+  return {
+    type: PHOENIX_CHANNEL_END_PROGRESS,
     data: {
-      domainKey,
-      socketState,
+      channelTopic,
+      loadingStatusKey,
     },
   };
 }
 
 /**
- * Should the socket attempt to open, this action is dispatched to the
- * phoenix reducer
+ * Helper method to connect to channel within socket. Only used internally.
  * @param {Object} params - parameters
- * @param {string} params.domainKey - domain for socket
- * @param {Object} params.socket = socket being opened
+ * @param {Function} params.dispatch
+ * @param {Object} params.socket - phoenix socket
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string=} [params.token=null] params.token - token for channel
+ * @param {Function} params.dispatch - React dispatcher
  */
-export function openPhoenixSocket({ socket, domainKey }) {
-  return {
-    type: socketActionTypes.SOCKET_OPEN,
-    isAnonymous: !socket.params().token,
-    socket,
-    domainKey,
-  };
+export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
+  if (!hasValidSocket(socket)) {
+    dispatch(disconnectPhoenix());
+    return null;
+  }
+
+  const channel = socket.channel(channelTopic, token ? { token } : null);
+  channel.onClose(() => {
+    dispatch(phoenixChannelClose({ channel }));
+  });
+
+  channel.onError(() => {
+    dispatch(phoenixChannelError({ channel, channelTopic }));
+  });
+
+  return channel;
 }
 
 /**
- * Should the socket attempt to close, this action is dispatched to the
- * phoenix reducer
+ * Connects to given channel name and listens on eventNames and dispatches response to given corresponding eventActionTypes,
  * @param {Object} params - parameters
- * @param {Object} params.socket = socket being closed
- * @param {string} params.domainKey - domain for socket
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {Object[]=} [params.events=[]]  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
+ * @param {string} events[].eventName - The name of event to listen on channel.
+ * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
+ * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
+ * @param {String=} [params.token = null] params.token - token for channel
+ * @param {Object} params.socket - phoenix socket
+ * @returns {Object}
  */
-export function closePhoenixSocket({ domainKey, socket }) {
-  return {
-    type: socketActionTypes.SOCKET_CLOSE,
-    isAnonymous: !socket.params().token,
-    domainKey,
-    socket,
-  };
-}
+export function connectToPhoenixChannelForEvents({
+  dispatch,
+  channelTopic,
+  events,
+  responseActionType,
+  token = null,
+  socket,
+}) {
+  let channel = findChannelByName({ channelTopic, socket });
+  if (!channel && !isNullOrEmpty(channelTopic)) {
+    channel = connectToPhoenixChannel({ socket, channelTopic, dispatch, token });
+    if (!channel) {
+      return { type: NO_PHOENIX_CHANNEL_FOUND };
+    }
 
-/**
- * Disconnects the phoenix socket
- * @param {Object} params - parameters
- * @param {Object} params.socket = socket being disconnected
- * @param {string} params.domainKey - domain for socket
- */
-export function disconnectPhoenixSocket({ domainKey, socket }) {
-  return {
-    type: socketActionTypes.SOCKET_DISCONNECT,
-    isAnonymous: !socket.params().token,
-    domainKey,
-    socket,
-  };
+    channel
+      .join()
+      .receive(channelStatuses.CHANNEL_OK, (response) => {
+        dispatch(
+          phoenixChannelJoin({
+            response,
+            channel,
+          })
+        );
+        dispatch(endPhoenixChannelProgress({ channelTopic }));
+      })
+      .receive(channelStatuses.CHANNEL_ERROR, (response) => {
+        dispatch(phoenixChannelJoinError({ error: response, channelTopic }));
+        dispatch(endPhoenixChannelProgress({ channelTopic }));
+      })
+      .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
+        dispatch(
+          phoenixChannelTimeOut({
+            channelTopic,
+            error: response,
+          })
+        );
+        dispatch(endPhoenixChannelProgress({ channelTopic }));
+      });
+
+    return {
+      type: responseActionType,
+      channel,
+    };
+  }
+
+  if (channel && events) {
+    events.forEach(({ eventName, eventActionType }) => {
+      if (!find(get(channel, 'bindings', []), { event: eventName })) {
+        channel.on(eventName, (data) => {
+          dispatch({ type: eventActionType, data, eventName, channelTopic });
+        });
+      }
+    });
+  }
+  return { type: PHOENIX_CHANNEL_UPDATED, channel };
 }
 
 /**

@@ -25,7 +25,6 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import {
-  updatePhoenixLoginDetails,
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
   makeSelectPhoenixSocketStatus,
@@ -46,7 +45,6 @@ constructor(props) {
 LoginPage.propTypes = {
   socketStatus: PropTypes.string,
   getAnonymousChannel: PropTypes.func,
-  updateLoginDetails: PropTypes.func,
   pushToChannel: PropTypes.func,
 }
 
@@ -55,8 +53,6 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     getAnonymousChannel: ({domainUrl}) =>
       dispatch(getAnonymousPhoenixChannel({ domainUrl, channelTopic })),
-    updateLoginDetails: ({ agentId, token }) =>
-      dispatch(updatePhoenixLoginDetails({ agentId, token })),
     pushToChannel: ({channelTopic,eventName,channelResponseEvent,channelErrorResponseEvent,requestData}) =>
       dispatch(pushToPhoenixChannel({ channelTopic,eventName,channelResponseEvent,channelErrorResponseEvent,requestData })),
   };
@@ -147,7 +143,7 @@ export function* loginSaga({ data }) {
       channelResponseEvent: REQUEST_LOGIN_SUCCESS,
       channelErrorResponseEvent: REQUEST_LOGIN_FAILURE,
       requestData: data,
-      additionalData: { domainDetails },
+      additionalData: { domain },
       dispatchChannelError: true,
       customerTimeoutEvent: REQUEST_LOGIN_TIMEOUT,
     });
@@ -170,8 +166,12 @@ import {
   loginFailed,
 } from '../App/actions';
 import {
-  disconnectPhoenix,
-  updatePhoenixLoginDetails,
+  PHOENIX_TOKEN,
+  PHOENIX_SOCKET_DOMAIN,
+  PHOENIX_AGENT_ID,
+} from '../../config';
+import {
+  connectPhoenix,
 } from '@trixta/phoenix-to-redux';
 
 /**
@@ -182,23 +182,20 @@ import {
 export function* handleLoginSuccessSaga({ data }) {
   // on success of login take the response data
   if (data) {
-    const routeLocation = yield select(makeSelectRouteLocation());
-    const redirectUrl = getAuthenticationRedirectUrl({
-      routeLocation,
-      defaultUrl: routePaths.HOME_PAGE,
-    });
-    // eslint-disable-next-line camelcase
+     // eslint-disable-next-line camelcase
     // additionalData you passed
-    const domainDetails = _.get(data, 'domainDetails');
-    const agent_id = _.get(data, 'agent_id', '');
+    const domainUrl = _.get(data, 'domain');
+    const agentId = _.get(data, 'agent_id', '');
     const identity = _.get(data, 'identity', '');
-    const jwt = _.get(data, 'jwt', '');
+    const token = _.get(data, 'jwt', '');
     // eslint-disable-next-line camelcase
     // update phoenix storage keys for future phoenix socket channel calls
-    yield put(updatePhoenixLoginDetails({ agentId: agent_id, token: jwt }));
-    // close unauthenticated socket, future pushToPhoenixChannel,getPhoenixChannel callls will now use the updated login details
-    yield put(disconnectPhoenix());
-    yield put(push(redirectUrl));
+    setLocalStorageItem(PHOENIX_SOCKET_DOMAIN, domainUrl);
+    setLocalStorageItem(PHOENIX_TOKEN, token);
+    setLocalStorageItem(PHOENIX_AGENT_ID, agentId);
+    // connect authenticated phoenix socket
+     yield put(connectPhoenix({ domainUrl, agentId, token }));
+    yield put(push('/home'));
   } else {
     yield put(loginFailed());
   }
@@ -209,14 +206,6 @@ On `REQUEST_LOGIN_FAILURE` the below `handleLoginFailureSaga` function is going 
 ```javascript
 import _ from 'lodash';
 import { put } from 'redux-saga/effects';
-import {
-  disconnectPhoenix,
-  updatePhoenixLoginDetails,
-  getAnonymousPhoenixChannel,
-  pushToPhoenixChannel,
-  formatSocketDomain,
-  getUrlParameter,
-} from '@trixta/phoenix-to-redux';
 import {
   updateError,
   defaultLoad,

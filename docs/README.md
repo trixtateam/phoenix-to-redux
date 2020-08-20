@@ -27,20 +27,13 @@ or yarn - whichever you prefer
  */
 
 import { combineReducers } from 'redux';
-import { connectRouter } from 'connected-react-router';
 import { phoenixReducer } from '@trixta/phoenix-to-redux';
-import createHistory from 'history/createBrowserHistory';
-
-const history = createHistory();
 
 export default function createReducer() {
   const rootReducer = combineReducers({
     phoenix: phoenixReducer,
   });
-
-  // Wrap the root reducer and return a new root reducer with router state
-  const mergeWithRouterState = connectRouter(history);
-  return mergeWithRouterState(rootReducer);
+  return rootReducer;
 }
 ```
 
@@ -56,10 +49,8 @@ const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
 export default function configureStore(initialState = {}) {
   // Create the store with two middlewares
   // 1. phoenixChannelMiddleWare: Makes redux connected to phoenix channels
-  // 2. routerMiddleware: Syncs the location/URL path to the state
   const middlewares = [
     phoenixChannelMiddleWare,
-    routerMiddleware(history),
   ];
 
   const enhancers = [applyMiddleware(...middlewares)];
@@ -127,11 +118,9 @@ import _ from 'lodash';
 import { routePaths } from '../../route-paths';
 import { put, select, takeLatest } from 'redux-saga/effects';
 import {
-  disconnectPhoenix,
   connectPhoenix
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
-  getUrlParameter,
 } from '@trixta/phoenix-to-redux';
 import {
   REQUEST_LOGIN,
@@ -159,7 +148,7 @@ export function* loginSaga({ data }) {
       })
     );
     // push the data to 'authentication' channel topic
-    // domain will be available on the response because its pass as additionalData
+    // domain will be available on the response because its passed as additionalData
     // on OK response from channel dispatch REQUEST_LOGIN_SUCCESS
     // on error response from channel dispatch REQUEST_LOGIN_FAILURE
      // on timeout response from channel dispatch REQUEST_LOGIN_TIMEOUT
@@ -170,7 +159,7 @@ export function* loginSaga({ data }) {
       channelResponseEvent: REQUEST_LOGIN_SUCCESS,
       channelErrorResponseEvent: REQUEST_LOGIN_FAILURE,
       requestData: data,
-      additionalData: { domain },
+      additionalData: { domainUrl },
       dispatchChannelError: true,
       customerTimeoutEvent: REQUEST_LOGIN_TIMEOUT,
     });
@@ -193,10 +182,13 @@ import {
   loginFailed,
 } from '../App/actions';
 import {
-  disconnectPhoenix,
-  updatePhoenixLoginDetails,
+  connectPhoenix,
 } from '@trixta/phoenix-to-redux';
-
+import {
+  PHOENIX_TOKEN,
+  PHOENIX_SOCKET_DOMAIN,
+  PHOENIX_AGENT_ID,
+} from '../../config';
 /**
  *
  * @param data
@@ -208,17 +200,17 @@ export function* handleLoginSuccessSaga({ data }) {
 
     // eslint-disable-next-line camelcase
     // additionalData you passed
-    const domain = _.get(data, 'domain');
-    const agent_id = _.get(data, 'agent_id', '');
+    const domainUrl = _.get(data, 'domainUrl');
+    const agentId = _.get(data, 'agent_id', '');
     const identity = _.get(data, 'identity', '');
-    const jwt = _.get(data, 'jwt', '');
+    const token = _.get(data, 'jwt', '');
     // eslint-disable-next-line camelcase
     // update phoenix storage keys for future phoenix socket channel calls
-
-    // close unauthenticated socket, future pushToPhoenixChannel
-    yield put(disconnectPhoenix());
+    setLocalStorageItem(PHOENIX_SOCKET_DOMAIN, domainUrl);
+    setLocalStorageItem(PHOENIX_TOKEN, token);
+    setLocalStorageItem(PHOENIX_AGENT_ID, agentId);
     // connect authenticated phoenix socket
-     yield put(connectPhoenix({ domainUrl:domain, agentId: agent_id, token: jwt }));
+     yield put(connectPhoenix({ domainUrl, agentId, token }));
     yield put(push('/home'));
   } else {
     yield put(loginFailed());
@@ -235,8 +227,6 @@ import {
   updatePhoenixLoginDetails,
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
-  formatSocketDomain,
-  getUrlParameter,
 } from '@trixta/phoenix-to-redux';
 import {
   updateError,
@@ -252,7 +242,96 @@ export function* handleLoginFailureSaga(error) {
 }
 ```
 
-## Responding to Channel Errors
+## Responding to Channel Events
+```javascript
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from 'redux-saga/effects';
+import {
+  channelActionTypes,
+} from '@trixta/phoenix-to-redux';
+
+
+
+/**
+ * Response after joining a phoenix channel with an error
+ * @param {Object} params - parameters
+ * @param {string} params.error - phoenix channel error
+ * @param {string} params.channelTopic - phoenix channel topic
+ */
+export function* channelJoinErrorSaga({ error, channelTopic }) {
+  console.error('channelJoinErrorSaga', error,, channelTopic);
+}
+
+/**
+ * Invoked if the socket connection drops, or the channel crashes on the server. In either case, a channel rejoin is attempted automatically in an exponential backoff manner
+ * @param {Object} params - parameters
+ * @param {string} params.channel - phoenix channel
+ * @param {string} params.channelTopic - phoenix channel topic
+ */
+export function* channelErrorSaga({ channel, channelTopic }) {
+  console.error('channelErrorSaga', error, channel, channelTopic);
+}
+
+/**
+ * Response after joining a phoenix channel with a timeout
+ * @param {Object} params - parameters
+ * @param {string} params.error - phoenix channel error
+ * @param {string} params.channelTopic -  Name of channel/Topic
+ */
+export function* channelTimeOutErrorSaga({ error, channelTopic }) {
+  console.error('channelTimeOutErrorSaga', error,, channelTopic);
+}
+
+/**
+ * Response after pushing a request to phoenix channel with an error
+ * @param {Object} params - parameters
+ * @param {string} params.error - phoenix channel error
+ * @param {string} params.channel - phoenix channel
+ * @param {string} params.channelTopic - phoenix channel topic
+ */
+export function* channelPushErrorSaga({ error, channel, channelTopic }) {
+  console.error('channelPushErrorSaga', error, channel, channelTopic);
+}
+
+/**
+ * Response after joining a phoenix channel
+ * @param {Object} params - parameters
+ * @param {Object} params.response - response from joining channel
+ * @param {Object} params.channel - phoenix channel
+ */
+export function* channelJoinSaga({ response, channel }) {
+  console.info('channelJoinSaga', error, channel, channelTopic);
+}
+
+/**
+ * Invoked only in two cases. 1) the channel explicitly closed on the server, or 2). The client explicitly closed, by calling channel.leave()
+ * @param {Object} params - parameters
+ * @param {Object} params.channel - phoenix channel
+ */
+export function* channelCloseSaga({  channel }) {
+  console.info('channelCloseSaga',  channel);
+}
+
+
+export default function* defaultSaga() {
+  yield takeEvery(channelActionTypes.CHANNEL_JOIN_ERROR, channelJoinErrorSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_ERROR, channelErrorSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_TIMEOUT, channelTimeOutErrorSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_PUSH_ERROR, channelPushErrorSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_JOIN, channelJoinSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_CLOSE, channelCloseSaga);
+}
+
+```
+
+## Responding to Socket Events
 ```javascript
 import {
   all,
@@ -265,61 +344,61 @@ import {
 } from 'redux-saga/effects';
 import {
   socketActionTypes,
-  channelActionTypes,
 } from '@trixta/phoenix-to-redux';
 
+
 /**
- * When a socket disconnection happens clear storage
- * and redirect to login page
+ * Should the socket attempt to open, this action is dispatched to the
+ * phoenix reducer
+ * @param {Object} params - parameters
+ * @param {string} params.domainKey - domain for socket
+ * @param {Object} params.socket = socket being opened
+ * @param {boolean} params.isAnonymous - true if socket was anonymous
  */
-export function* socketDisconnectionSaga() {
-  const location = yield select(makeSelectRouteLocation());
-  yield put(unAuthenticate());
-  yield put(defaultLoad());
-  if (!isNullOrEmpty(location)) {
-    yield put(push(`${routePaths.LOGIN_PAGE}${_.get(location, 'search', '')}`));
-  } else {
-    yield put(push(routePaths.LOGIN_PAGE));
-  }
+export function* socketConnectedSaga({ isAnonymous, socket, domainKey }) {
+  console.info('socketConnectedSaga',{ isAnonymous, socket, domainKey });
+}
+
+/** Should an error occur from the phoenix socket, this action will be dispatched
+ * @param {Object} params - parameters
+ * @param {string} params.error
+ * @param {string} params.socketState
+ * @param {string} params.domainKey - domain for socket
+ */
+export function* socketErrorSaga({ error, socketState, domainKey }) {
+  console.error('socketErrorSaga',{ error, socketState, domainKey });
 }
 
 /**
- * If an error happens on joining a phoenix channel
- * @param {Object} params
- * @param {Object} params.error - error response
- * @param {string} params.channelTopic - name of phoenix channel
+ * Should the socket attempt to close, this action is dispatched to the
+ * phoenix reducer
+ * @param {Object} params - parameters
+ * @param {Object} params.socket = socket being closed
+ * @param {string} params.domainKey - domain for socket
+ * @param {boolean} params.isAnonymous - true if socket was anonymous
  */
-export function* channelJoinErrorSaga({ error, channelTopic }) {
-  yield put(updateError({ error: message }));
+export function* socketCloseSaga({ isAnonymous, socket, domainKey }) {
+  console.info('socketCloseSaga',{ isAnonymous, socket, domainKey });
 }
-
 /**
- * If an error happens on a phoenix channel
- * @param {Object} params
- * @param {Object} params.error - error response
- * @param {string} params.channelTopic - name of phoenix channel
+ * After  phoenix socket disconnects
+ * @param {Object} params - parameters
+ * @param {Object} params.socket = socket being disconnected
+ * @param {string} params.domainKey - domain for socket
+ * @param {boolean} params.isAnonymous - true if socket was anonymous
  */
-export function* channelErrorSaga({ error }) {
-  yield put(updateError({ error }));
+export function* socketDisconnectionSaga({ isAnonymous, socket, domainKey }) {
+  console.info('socketDisconnectionSaga',{ isAnonymous, socket, domainKey });
 }
-
-/**
- * After the socket is connected,
- * @param {*} params
- */
-export function* socketConnectedSaga({ }) {
-
-}
-
 
 export default function* defaultSaga() {
-yield takeLatest(
+yield takeEvery(
     socketActionTypes.SOCKET_DISCONNECT,
     socketDisconnectionSaga
   );
-  yield takeLatest(channelActionTypes.CHANNEL_PUSH_ERROR, channelErrorSaga);
-  yield takeLatest(channelActionTypes.CHANNEL_JOIN_ERROR, channelJoinErrorSaga);
   yield takeEvery(socketActionTypes.SOCKET_OPEN, socketConnectedSaga);
+  yield takeEvery(socketActionTypes.SOCKET_ERROR, socketErrorSaga);
+  yield takeEvery(socketActionTypes.SOCKET_CLOSE, socketCloseSaga);
 }
 ```
 ## Responding to Channel Progress

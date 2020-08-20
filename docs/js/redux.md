@@ -20,7 +20,7 @@ import { constants } from '@trixta/phoenix-to-redux';
 ```
 or
 ```javascript
-import { channelStatuses, channelActionTypes, phoenixChannelStatuses,socketActionTypes, socketStatuses, PHOENIX_TOKEN,PHOENIX_SOCKET_DOMAIN, PHOENIX_AGENT_ID } from '@trixta/phoenix-to-redux';
+import { channelStatuses, channelActionTypes, phoenixChannelStatuses, socketActionTypes, socketStatuses, } from '@trixta/phoenix-to-redux';
 ```
 ### actions
 ```javascript
@@ -28,28 +28,18 @@ import { actions } from '@trixta/phoenix-to-redux';
 ```
 or
 ```javascript
-import { updatePhoenixLoginDetails, getPhoenixChannel,  getAnonymousPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix   } from '@trixta/phoenix-to-redux';
+import { getPhoenixChannel,  getAnonymousPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix } from '@trixta/phoenix-to-redux';
 ```
 
 ### middlewares
 ```javascript
 import { middlewares } from '@trixta/phoenix-to-redux';
+middlewares.createPhoenixChannelMiddleware
 ```
 or
 ```javascript
 import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
 ```
-
-### helper methods
-```javascript
-import { helpers } from '@trixta/phoenix-to-redux';
-helpers.isAuthenticated
-```
-or
-```javascript
-import { isAuthenticated } from '@trixta/phoenix-to-redux';
-```
-
 
 ## Usage
 `reducers.js`
@@ -62,9 +52,6 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { phoenixReducer } from '@trixta/phoenix-to-redux';
 import globalReducer from './containers/App/reducer';
-import createHistory from 'history/createBrowserHistory';
-
-const history = createHistory();
 
 export default function createReducer() {
   const rootReducer = combineReducers({
@@ -72,9 +59,7 @@ export default function createReducer() {
     global: globalReducer,
   });
 
-  // Wrap the root reducer and return a new root reducer with router state
-  const mergeWithRouterState = connectRouter(history);
-  return mergeWithRouterState(rootReducer);
+  return rootReducer;
 }
 ```
 

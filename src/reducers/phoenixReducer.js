@@ -12,7 +12,7 @@ export const initialState = {
   domain: false,
   details: false,
   channels: {},
-  socketStatus: false,
+  socketStatus: socketStatuses.CLOSED,
   presentUsers: false,
 };
 /* eslint-disable default-case, no-param-reassign, consistent-return */

@@ -11,22 +11,21 @@ import {
 } from '../../constants';
 import { formatSocketDomain, hasValidSocket } from '../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../helpers';
-
+import { disconnectPhoenix } from '../../actions';
 import {
   connectToPhoenixChannelForEvents,
   findChannelByName,
-  phoenixChannelPushError,
   endPhoenixChannelProgress,
-  phoenixChannelTimeOut,
-  disconnectPhoenix,
-} from '../../actions';
-
-import { disconnectPhoenixSocket, updatePhoenixChannelLoadingStatus, setUpSocket } from './actions';
+  updatePhoenixChannelLoadingStatus,
+  setUpSocket,
+} from './actions';
 import {
   selectPhoenixSocket,
   selectPhoenixSocketDetails,
   selectPhoenixSocketDomain,
 } from '../../selectors/socket/selectors';
+import { disconnectPhoenixSocket } from './actions/socket';
+import { phoenixChannelPushError, phoenixChannelTimeOut } from './actions/channel';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -37,7 +36,6 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
     case PHOENIX_CONNECT_SOCKET: {
       const { dispatch } = store;
       const { domainUrl, token, agentId } = action.data;
-
       const currentState = store.getState();
       let socket = selectPhoenixSocket(currentState);
       const activeDomainKey = selectPhoenixSocketDomain(currentState);

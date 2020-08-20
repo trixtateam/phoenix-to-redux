@@ -10,7 +10,17 @@ offers a good starting point!
 
 ## Imports
 ```JS
-import { makeSelectPhoenixSocket, makeSelectPhoenixSocketStatus, makeSelectPhoenixChannels } from '@trixta/phoenix-to-redux'
+import {
+  selectPhoenixSocket,
+selectPhoenixSocketDomain,
+selectPhoenixSocketDetails,
+makeSelectPhoenixSocketDomain,
+makeSelectPhoenixSocketDetails,
+makeSelectPhoenixSocket,
+makeSelectPhoenixSocketIsAuthenticated,
+makeSelectPhoenixSocketStatus,
+makeSelectPhoenixChannels,
+ } from '@trixta/phoenix-to-redux'
 ```
 or
 ```JS
@@ -21,32 +31,9 @@ selectors.makeSelectPhoenixSocket
 `phoenix-to-redux` makes use of reselect to provide selectors for the `phoenix` reducer
 The following selectors are available
 
-### Phoenix Socket Selector
-
-```javascript
-const selectPhoenix = state => state.phoenix || initialState;
-
-const makeSelectPhoenixSocket = () =>
-  createSelector(
-    selectPhoenix,
-    phoenixState => phoenixState.socket
-  );
-
-const makeSelectPhoenixSocketStatus = () =>
-  createSelector(
-    selectPhoenix,
-    phoenixState => phoenixState.socketStatus
-  );
-```
+### Phoenix Socket Selectors
+[`socket selectors`](https://github.com/trixtateam/phoenix-to-redux/blob/master/src/selectors/socket/selectors.js)  - includes all socket related state selection
 
 ### Phoenix Channels Selector
+[`channel selectors`](https://github.com/trixtateam/phoenix-to-redux/blob/master/src/selectors/channels/selectors.js)  - includes all channel related state selection
 
-```javascript
-const selectPhoenix = state => state.phoenix || initialState;
-
-const makeSelectPhoenixChannels = () =>
-  createSelector(
-    selectPhoenix,
-    phoenixState => phoenixState.socket.channels
-  );
-```

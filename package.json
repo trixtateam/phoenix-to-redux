@@ -1,6 +1,6 @@
 {
   "name": "@trixta/phoenix-to-redux",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
   "main": "lib/bundle.cjs.min.js",
   "module": "lib/bundle.esm.min.js",
@@ -59,11 +59,9 @@
     "lodash": "4.17.19",
     "phoenix": "1.5.4",
     "reselect": "4.0.0",
-    "immer": "3.0.0",
-    "connected-react-router": "6.8.0"
+    "immer": "3.0.0"
   },
   "dependencies": {
-    "connected-react-router": "6.8.0",
     "immer": "3.0.0",
     "lodash": ">=4",
     "phoenix": "1.5.4",

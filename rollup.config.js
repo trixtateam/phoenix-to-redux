@@ -2,22 +2,24 @@ import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
+import filesize from 'rollup-plugin-filesize';
+import pkg from './package.json';
 const destinationDirectory = 'lib';
 const destinationFileName = 'bundle';
-
-const input = 'src/index.js';
+const INPUT_FILE_PATH = 'src/index.js';
+const OUTPUT_NAME = 'phoenixToRedux';
 const extensions = ['.js'];
-const globals = {
-  lodash: 'lodash',
-  phoenix: 'phoenix',
-  reselect: 'reselect',
-};
-const external = Object.keys(globals);
-const output = {
-  globals,
-  name: 'phoenixToRedux',
-};
-const babelOptions = {
+const EXTERNAL = Object.keys(pkg.dependencies);
+const GLOBALS = EXTERNAL.map((key) => {
+  switch (key) {
+    case 'immer':
+      return 'immer';
+    default:
+      return key;
+  }
+});
+
+const BABEL_OPTIONS = {
   extensions,
   babelrc: false, // to ignore @babel/transform-runtime
   exclude: 'node_modules/**',
@@ -25,140 +27,76 @@ const babelOptions = {
   babelHelpers: 'bundled',
 };
 
-export default [
-  {
-    input,
-    external,
-    plugins: [
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'cjs',
-      file: `${destinationDirectory}/${destinationFileName}.cjs.js`,
+const COMMON_PLUGINS = [
+  commonjs(),
+  filesize(),
+  resolve({
+    extensions,
+    // pass custom options to the resolve plugin
+    customResolveOptions: {
+      moduleDirectory: 'node_modules',
     },
+  }),
+  babel({
+    ...BABEL_OPTIONS,
+  }),
+];
+const PLUGINS = COMMON_PLUGINS;
+const PLUGINS_WITH_TERSER = [
+  terser(),
+  commonjs(),
+  resolve({
+    extensions,
+    // pass custom options to the resolve plugin
+    customResolveOptions: {
+      moduleDirectory: 'node_modules',
+    },
+  }),
+  babel({
+    ...BABEL_OPTIONS,
+  }),
+];
+
+const OUTPUT_DATA = [
+  {
+    file: pkg.main,
+    format: 'cjs',
+    includeTerser: true,
   },
   {
-    input,
-    external,
-    plugins: [
-      terser(),
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'cjs',
-      file: `${destinationDirectory}/${destinationFileName}.cjs.min.js`,
-    },
+    file: `${destinationDirectory}/${destinationFileName}.cjs.js`,
+    format: 'cjs',
   },
   {
-    input,
-    external,
-    plugins: [
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'esm',
-      file: `${destinationDirectory}/${destinationFileName}.esm.js`,
-    },
+    file: pkg.browser,
+    format: 'umd',
+    includeTerser: true,
   },
   {
-    input,
-    external,
-    plugins: [
-      terser(),
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'esm',
-      file: `${destinationDirectory}/${destinationFileName}.esm.min.js`,
-    },
+    file: `${destinationDirectory}/${destinationFileName}.umd.js`,
+    format: 'umd',
   },
   {
-    input,
-    external,
-    plugins: [
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'umd',
-      file: `${destinationDirectory}/${destinationFileName}.umd.js`,
-    },
+    file: pkg.module,
+    format: 'es',
+    includeTerser: true,
   },
   {
-    input,
-    external,
-    plugins: [
-      terser(),
-      commonjs(),
-      resolve({
-        extensions,
-        // pass custom options to the resolve plugin
-        customResolveOptions: {
-          moduleDirectory: 'node_modules',
-        },
-      }),
-      babel({
-        ...babelOptions,
-      }),
-    ],
-    output: {
-      ...output,
-      format: 'umd',
-      file: `${destinationDirectory}/${destinationFileName}.umd.min.js`,
-    },
+    file: `${destinationDirectory}/${destinationFileName}.esm.js`,
+    format: 'es',
   },
 ];
+
+const config = OUTPUT_DATA.map(({ file, format, includeTerser }) => ({
+  input: INPUT_FILE_PATH,
+  output: {
+    file,
+    format,
+    name: OUTPUT_NAME,
+    globals: GLOBALS,
+  },
+  external: EXTERNAL,
+  plugins: includeTerser ? PLUGINS_WITH_TERSER : PLUGINS,
+}));
+
+export default config;

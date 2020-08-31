@@ -1,9 +1,13 @@
 {
   "name": "@trixta/phoenix-to-redux",
   "version": "2.0.0-beta.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
   "main": "lib/bundle.cjs.min.js",
   "module": "lib/bundle.esm.min.js",
+  "browser": "lib/bundle.umd.min.js",
   "files": [
     "lib"
   ],
@@ -93,6 +97,7 @@
     "prettier": "2.0.5",
     "rimraf": "^3.0.2",
     "rollup": "^2.23.1",
+    "rollup-plugin-filesize": "^9.0.0",
     "rollup-plugin-terser": "^7.0.0"
   },
   "directories": {

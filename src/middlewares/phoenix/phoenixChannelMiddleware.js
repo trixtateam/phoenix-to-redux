@@ -141,13 +141,16 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 dispatch({
                   type: channelErrorResponseEvent,
                   channelTopic,
-                  error: merge(data, additionalData),
+                  loadingStatusKey,
+                  data: additionalData,
+                  error: data,
                   dispatch,
                 });
               } else {
                 dispatch({
                   type: channelErrorResponseEvent,
                   channelTopic,
+                  loadingStatusKey,
                   error: data,
                   dispatch,
                 });
@@ -159,9 +162,9 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
               dispatch({
                 type: channelTimeOutEvent,
                 channelTopic,
-                error: additionalData
-                  ? merge({ message: 'Request time out' }, additionalData)
-                  : 'Request time out',
+                loadingStatusKey,
+                data: additionalData,
+                error: merge({ message: 'Request time out' }, data),
               });
             }
             dispatch(phoenixChannelTimeOut({ error: data, channelTopic }));

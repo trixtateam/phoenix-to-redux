@@ -1,34 +1,31 @@
-import * as middlewares from './middlewares';
-import * as reducers from './reducers';
-import * as actions from './actions/index';
-import * as utils from './utils';
-import * as selectors from './selectors';
-import * as constants from './constants';
+export * as middlewares from './middlewares';
+export * as reducers from './reducers';
+export * as actions from './actions/index';
+export * as utils from './utils';
+export * as selectors from './selectors';
+export * as constants from './constants';
 
-module.exports = {
-  ...reducers,
-  ...middlewares,
-  ...constants,
-  ...selectors,
-  ...actions,
-  ...utils,
-};
-
-module.exports.reducers = {
-  ...reducers,
-};
-
-module.exports.selectors = {
-  ...selectors,
-};
-
-module.exports.utils = { ...utils };
-module.exports.actions = {
-  ...actions,
-};
-
-module.exports.middlewares = { ...middlewares };
-
-module.exports.constants = {
-  ...constants,
-};
+export { phoenixReducer } from './reducers';
+export { createPhoenixChannelMiddleware } from './middlewares';
+export { formatSocketDomain } from './utils';
+export {
+  selectPhoenixSocket,
+  selectPhoenixSocketDetails,
+  makeSelectPhoenixSocket,
+  makeSelectPhoenixSocketIsAuthenticated,
+  makeSelectPhoenixSocketStatus,
+} from './selectors';
+export {
+  pushToPhoenixChannel,
+  getPhoenixChannel,
+  connectPhoenix,
+  disconnectPhoenix,
+} from './actions/index';
+export {
+  socketActionTypes,
+  channelActionTypes,
+  PHOENIX_CONNECT_SOCKET,
+  PHOENIX_DISCONNECT_SOCKET,
+  PHOENIX_CHANNEL_END_PROGRESS,
+  PHOENIX_CHANNEL_LOADING_STATUS,
+} from './constants';

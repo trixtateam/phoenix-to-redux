@@ -25,7 +25,8 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import {
-  getAnonymousPhoenixChannel,
+  getPhoenixChannel,
+  connectPhoenix,
   pushToPhoenixChannel,
   makeSelectPhoenixSocketStatus,
 } from '@trixta/phoenix-to-redux';
@@ -36,6 +37,11 @@ constructor(props) {
    this.state = {};
 }
 
+  componentDidMount(){
+    const {connect} = this.props;
+    connect('localhost:3000');
+  }
+
   render() {
   return (<div></div>)
   }
@@ -44,15 +50,18 @@ constructor(props) {
 
 LoginPage.propTypes = {
   socketStatus: PropTypes.string,
-  getAnonymousChannel: PropTypes.func,
+  getPhoenixChannel: PropTypes.func,
   pushToChannel: PropTypes.func,
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    getAnonymousChannel: ({domainUrl}) =>
-      dispatch(getAnonymousPhoenixChannel({ domainUrl, channelTopic })),
+    connect:(domainUrl) => {
+      dispatch(connectPhoenix({ domainUrl }))
+    },
+    getChannel: ({domainUrl}) =>
+      dispatch(getPhoenixChannel({ domainUrl, channelTopic })),
     pushToChannel: ({channelTopic,eventName,channelResponseEvent,channelErrorResponseEvent,requestData}) =>
       dispatch(pushToPhoenixChannel({ channelTopic,eventName,channelResponseEvent,channelErrorResponseEvent,requestData })),
   };
@@ -101,7 +110,8 @@ import { put, select, takeLatest } from 'redux-saga/effects';
 import {
   disconnectPhoenix,
   updatePhoenixLoginDetails,
-  getAnonymousPhoenixChannel,
+  connectPhoenix,
+  getPhoenixChannel,
   pushToPhoenixChannel,
   formatSocketDomain,
   getUrlParameter,
@@ -124,9 +134,10 @@ export function* loginSaga({ data }) {
     const channelTopic = 'authentication';
     // get the login domain data passed from the requestAuthentication action
     const domain = _.get(data, 'domain', '');
+    yield put(connectPhoenix({ domainUrl: domain }));
     // get the anonymous channel and socket
     yield put(
-      getAnonymousPhoenixChannel({
+      getPhoenixChannel({
         domainUrl: domain,
         channelTopic,
       })
@@ -194,7 +205,7 @@ export function* handleLoginSuccessSaga({ data }) {
     setLocalStorageItem(PHOENIX_TOKEN, token);
     setLocalStorageItem(PHOENIX_AGENT_ID, agentId);
     // connect authenticated phoenix socket
-     yield put(connectPhoenix({ domainUrl, agentId, token }));
+     yield put(connectPhoenix({ domainUrl, params: { agentId, token } }));
     yield put(push('/home'));
   } else {
     yield put(loginFailed());

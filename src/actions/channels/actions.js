@@ -22,42 +22,9 @@ export function getPhoenixChannel({
   return {
     type: PHOENIX_GET_CHANNEL,
     data: {
-      requiresAuthentication: true,
       channelTopic,
       channelToken: token,
       domainUrl,
-      events,
-      responseActionType,
-    },
-  };
-}
-
-/**
- * Will attempt to create a connection to the socket for the given channelTopic, events
- * without an authorization token
- * @param {Object} params - parameters
- * @param {string} params.channelTopic - Name of channel/Topic
- * @param {string} params.domainUrl - url for socket to connect to
- * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
- * @param {string} events[].eventName - The name of event to listen on channel.
- * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
- * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
- * @param {String?} params.token - token for channel
- */
-export function getAnonymousPhoenixChannel({
-  channelTopic,
-  domainUrl,
-  events = [],
-  token = null,
-  responseActionType = channelActionTypes.CHANNEL_JOIN,
-}) {
-  return {
-    type: PHOENIX_GET_CHANNEL,
-    data: {
-      domainUrl,
-      requiresAuthentication: false,
-      channelTopic,
-      channelToken: token,
       events,
       responseActionType,
     },

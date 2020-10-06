@@ -207,21 +207,16 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
 /**
  * Attempts to connect the socket and subscribes the socket events
  * to the corresponding phoenix reducer actions
- * @param {Object} params
- * @param {function} params.dispatch - store dispatch function
- * @param {string} params.token - authentication for socket
- * @param {string} params.domain - socket url to connect to
- * @param {string} params.agentId - agent id to connect socket
- * @param {boolean=} [params.requiresAuthentication = true] params.requiresAuthentication - determines if the socket needs authentication params
+ * @param {Object} parameters
+ * @param {function} parameters.dispatch - store dispatch function
+ * @param {string} parameters.params - socket params
+ * @param {Object} parameters.domain - socket url to connect to
  */
-export function setUpSocket({ dispatch, requiresAuthentication = true, agentId, domain, token }) {
+export function setUpSocket({ dispatch, domain, params }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
   let socket = false;
   if (!isNullOrEmpty(domainUrl)) {
-    socket = new Socket(
-      domainUrl,
-      requiresAuthentication && token && agentId ? { params: { token, agent_id: agentId } } : {}
-    );
+    socket = new Socket(domainUrl, { params });
     socket.connect();
     socket.onError((error) => {
       const connectionState = socket.connectionState();

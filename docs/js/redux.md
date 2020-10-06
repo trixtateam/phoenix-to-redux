@@ -28,7 +28,7 @@ import { actions } from '@trixta/phoenix-to-redux';
 ```
 or
 ```javascript
-import { getPhoenixChannel,  getAnonymousPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix } from '@trixta/phoenix-to-redux';
+import { getPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix } from '@trixta/phoenix-to-redux';
 ```
 
 ### middlewares

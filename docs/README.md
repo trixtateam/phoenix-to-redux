@@ -87,7 +87,7 @@ export default function configureStore(initialState = {}) {
 import { put } from 'redux-saga/effects';
 import {  connectPhoenix } from '@trixta/phoenix-to-redux';
 // update login details
-yield put(connectPhoenix({ domainUrl: 'localhost:4000', token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'}));
+yield put(connectPhoenix({ domainUrl: 'localhost:4000', params: { token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'} }));
 ```
 
 ## Redux Saga Example
@@ -119,7 +119,7 @@ import { routePaths } from '../../route-paths';
 import { put, select, takeLatest } from 'redux-saga/effects';
 import {
   connectPhoenix
-  getAnonymousPhoenixChannel,
+  getPhoenixChannel,
   pushToPhoenixChannel,
 } from '@trixta/phoenix-to-redux';
 import {
@@ -141,8 +141,9 @@ export function* loginSaga({ data }) {
     // get the login domain data passed from the requestAuthentication action
     const domain = _.get(data, 'domain', '');
     // get the anonymous channel and socket
+    yield put(connectPhoenix({ domainUrl: domain }))
     yield put(
-      getAnonymousPhoenixChannel({
+      getPhoenixChannel({
         domainUrl: domain,
         channelTopic,
       })
@@ -210,7 +211,7 @@ export function* handleLoginSuccessSaga({ data }) {
     setLocalStorageItem(PHOENIX_TOKEN, token);
     setLocalStorageItem(PHOENIX_AGENT_ID, agentId);
     // connect authenticated phoenix socket
-     yield put(connectPhoenix({ domainUrl, agentId, token }));
+     yield put(connectPhoenix({ domainUrl, params: { agentId, token } }));
     yield put(push('/home'));
   } else {
     yield put(loginFailed());

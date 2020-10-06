@@ -35,12 +35,12 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
       const { dispatch } = store;
-      const { domainUrl, token, agentId } = action.data;
+      const { domainUrl, params } = action.data;
       const currentState = store.getState();
       let socket = selectPhoenixSocket(currentState);
+      const socketDetails = selectPhoenixSocketDetails(currentState);
       const activeDomainKey = selectPhoenixSocketDomain(currentState);
-      const isAnonymous = socket && !socket.params().token;
-      if (isAnonymous) {
+      if (!isEqual(socketDetails, params)) {
         const domainKey = getDomainKeyFromUrl({ domainUrl });
         if (isEqual(domainKey, activeDomainKey)) {
           socket.disconnect(null, 1000, 'Upgraded socket to authenticated session');
@@ -48,23 +48,19 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
             setUpSocket({
               dispatch,
               domain: domainUrl,
-              token,
-              agentId,
-              requiresAuthentication: true,
+              params,
             })
           );
         }
       }
 
       socket = selectPhoenixSocket(store.getState());
-      if (!socket && domainUrl && token && agentId) {
+      if (!socket && domainUrl && params) {
         dispatch(
           setUpSocket({
             dispatch,
             domain: domainUrl,
-            token,
-            agentId,
-            requiresAuthentication: true,
+            params,
           })
         );
       }
@@ -180,18 +176,9 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socketDetails = selectPhoenixSocketDetails(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
-      const {
-        requiresAuthentication,
-        channelTopic,
-        domainUrl,
-        events,
-        channelToken,
-        responseActionType,
-      } = action.data;
+      const { channelTopic, domainUrl, events, channelToken, responseActionType } = action.data;
 
       const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
-      const token = socketDetails.token ? socketDetails.token : null;
-      const agentId = socketDetails.agent_id ? socketDetails.agent_id : null;
       const loggedInDomain = `${domain}/websocket`;
 
       if (!isEqual(socketDomain, loggedInDomain)) {
@@ -204,9 +191,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           setUpSocket({
             dispatch,
             domain,
-            token,
-            agentId,
-            requiresAuthentication,
+            params: socketDetails,
           })
         );
         socket = selectPhoenixSocket(store.getState());

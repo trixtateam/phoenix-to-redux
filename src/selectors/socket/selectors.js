@@ -9,6 +9,9 @@ const selectPhoenixSocketDetails = (state) => state.phoenix.details;
 const selectPhoenixSocketAuthenticated = (state) =>
   state.phoenix.details && !isNullOrEmpty(state.phoenix.details.token);
 
+const selectPhoenixChannelPresence = (state, channelTopic) =>
+  state.phoenix.channelPresence[channelTopic] || null;
+
 /**
  * Selects the current connected domain for socket
  */
@@ -41,6 +44,7 @@ const makeSelectPhoenixSocketStatus = () =>
 
 export {
   selectPhoenixSocket,
+  selectPhoenixChannelPresence,
   selectPhoenixSocketDomain,
   selectPhoenixSocketDetails,
   makeSelectPhoenixSocketDomain,

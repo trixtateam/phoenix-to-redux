@@ -1,4 +1,3 @@
-import { isNullOrEmpty } from '../../../../helpers';
 import { socketActionTypes } from '../../../../constants';
 
 /** Should an error occur from the phoenix socket, this action will be dispatched
@@ -26,7 +25,7 @@ export function phoenixSocketError({ error, socketState, domainKey }) {
 export function openPhoenixSocket({ socket, domainKey }) {
   return {
     type: socketActionTypes.SOCKET_OPEN,
-    isAnonymous: !isNullOrEmpty(socket.params().additional) || isNullOrEmpty(socket.params()),
+    params: socket.params(),
     socket,
     domainKey,
   };
@@ -42,7 +41,7 @@ export function openPhoenixSocket({ socket, domainKey }) {
 export function closePhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_CLOSE,
-    isAnonymous: isNullOrEmpty(socket.params()) || !socket.params().additional,
+    params: socket.params(),
     domainKey,
     socket,
   };
@@ -57,7 +56,7 @@ export function closePhoenixSocket({ domainKey, socket }) {
 export function disconnectPhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_DISCONNECT,
-    isAnonymous: isNullOrEmpty(socket.params()) || !socket.params().additional,
+    params: socket.params(),
     domainKey,
     socket,
   };

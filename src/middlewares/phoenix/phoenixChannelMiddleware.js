@@ -129,7 +129,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           })
           .receive(channelStatuses.CHANNEL_ERROR, (data) => {
             if (dispatchChannelError) {
-              dispatch(phoenixChannelPushError({ error: data, channelTopic }));
+              dispatch(phoenixChannelPushError({ error: data, channelTopic, channel }));
             }
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
             if (channelErrorResponseEvent) {
@@ -163,7 +163,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 error: merge({ message: 'Request time out' }, data),
               });
             }
-            dispatch(phoenixChannelTimeOut({ error: data, channelTopic }));
+            dispatch(phoenixChannelTimeOut({ error: data, channelTopic, channel }));
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
           });
       }
@@ -176,7 +176,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socketDetails = selectPhoenixSocketDetails(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
-      const { channelTopic, domainUrl, events, channelToken, responseActionType } = action.data;
+      const { channelTopic, domainUrl, events, channelToken } = action.data;
 
       const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
       const loggedInDomain = `${domain}/websocket`;
@@ -196,14 +196,12 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         );
         socket = selectPhoenixSocket(store.getState());
       }
-
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,
           channelTopic,
           events,
           token: channelToken,
-          responseActionType,
           socket,
         })
       );

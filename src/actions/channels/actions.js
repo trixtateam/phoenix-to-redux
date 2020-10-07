@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { PHOENIX_GET_CHANNEL, PHOENIX_PUSH_TO_CHANNEL, channelActionTypes } from '../../constants';
+import { PHOENIX_GET_CHANNEL, PHOENIX_PUSH_TO_CHANNEL } from '../../constants';
 
 /**
  * Will attempt to create a connection to the socket for the given channelTopic, events with the stored credentials
@@ -7,18 +7,11 @@ import { PHOENIX_GET_CHANNEL, PHOENIX_PUSH_TO_CHANNEL, channelActionTypes } from
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
- * @param {?string} params.responseActionType - on connection of the channel, name of action to dispatch to reducer
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {String?} params.token - token for channel
  */
-export function getPhoenixChannel({
-  channelTopic,
-  events = [],
-  token = null,
-  domainUrl = null,
-  responseActionType = channelActionTypes.CHANNEL_JOIN,
-}) {
+export function getPhoenixChannel({ channelTopic, events = [], token = null, domainUrl = null }) {
   return {
     type: PHOENIX_GET_CHANNEL,
     data: {
@@ -26,7 +19,6 @@ export function getPhoenixChannel({
       channelToken: token,
       domainUrl,
       events,
-      responseActionType,
     },
   };
 }

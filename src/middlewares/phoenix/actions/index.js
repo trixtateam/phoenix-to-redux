@@ -1,4 +1,5 @@
-import { Socket } from 'phoenix';
+// eslint-disable-next-line no-unused-vars
+import { Socket, Presence, Channel } from 'phoenix';
 import isEqual from 'lodash/isEqual';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -6,7 +7,6 @@ import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
   socketStatuses,
-  PHOENIX_CHANNEL_UPDATED,
   INVALID_SOCKET,
   channelActionTypes,
   PHOENIX_CHANNEL_END_PROGRESS,
@@ -17,6 +17,9 @@ import { formatSocketDomain, hasValidSocket } from '../../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
 import { disconnectPhoenix } from '../../../actions';
 import {
+  channelPresenceJoin,
+  channelPresenceLeave,
+  channelPresenceUpdate,
   phoenixChannelClose,
   phoenixChannelError,
   phoenixChannelJoin,
@@ -29,7 +32,7 @@ import { phoenixSocketError, openPhoenixSocket, closePhoenixSocket } from './soc
  * Disconnects the channel by removing it from the socket
  *
  * @param {Object} params - parameters
- * @param {Function} params.dispatch
+ * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {Object} params.socket - phoenix socket
  */
@@ -80,7 +83,7 @@ export function leavePhoenixChannel({ channelTopic, socket }) {
  * When a response from the phoenix channel is received this action is dispatched to indicate
  * the progress is completed for the loadingStatusKey passed.
  * @param {Object} params - parameters
- * @param {string} params.dispatch
+ * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {string=} [params.loadingStatusKey=null] params.loadingStatusKey - key to setting loading status on
  */
@@ -97,11 +100,10 @@ export function endPhoenixChannelProgress({ channelTopic, loadingStatusKey = nul
 /**
  * Helper method to connect to channel within socket. Only used internally.
  * @param {Object} params - parameters
- * @param {Function} params.dispatch
+ * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {Object} params.socket - phoenix socket
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {string=} [params.token=null] params.token - token for channel
- * @param {Function} params.dispatch - React dispatcher
  */
 export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token }) {
   if (!hasValidSocket(socket)) {
@@ -122,8 +124,45 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
 }
 
 /**
+ * Pushes the presence for the channel in phoenixReducer to log
+ * presence state
+ * @param {Object} parameters
+ * @param {Channel} - parameters.channel - phoenix channel
+ */
+export function connectPhoenixChannelPresence({ channel, dispatch }) {
+  const presence = new Presence(channel);
+  presence.onJoin((id, current, newPrescence) => {
+    console.log('user has entered for the first time', newPrescence);
+    dispatch(channelPresenceJoin({ id, current, newPrescence, channel }));
+    if (!current) {
+      console.log('user has entered for the first time', newPrescence);
+    } else {
+      console.log('user additional presence', newPrescence);
+    }
+  });
+
+  // detect if user has left from all tabs/devices, or is still present
+  presence.onLeave((id, current, leftPrescence) => {
+    console.log('user has left from all devices', leftPrescence);
+    dispatch(channelPresenceLeave({ id, current, leftPrescence, channel }));
+    if (current.metas.length === 0) {
+      console.log('user has left from all devices', leftPrescence);
+    } else {
+      console.log('user left from a device', leftPrescence);
+    }
+  });
+  // receive presence data from server
+  presence.onSync(() => {
+    dispatch(channelPresenceUpdate({ list: presence.list(), channel }));
+  });
+
+  return presence;
+}
+
+/**
  * Connects to given channel name and listens on eventNames and dispatches response to given corresponding eventActionTypes,
  * @param {Object} params - parameters
+ * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {Object[]=} [params.events=[]]  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
@@ -137,16 +176,18 @@ export function connectToPhoenixChannelForEvents({
   dispatch,
   channelTopic,
   events,
-  responseActionType,
   token = null,
   socket,
 }) {
   let channel = findChannelByName({ channelTopic, socket });
   if (!channel && !isNullOrEmpty(channelTopic)) {
     channel = connectToPhoenixChannel({ socket, channelTopic, dispatch, token });
+
     if (!channel) {
       return { type: NO_PHOENIX_CHANNEL_FOUND };
     }
+
+    const presence = connectPhoenixChannelPresence({ dispatch, channel });
 
     channel
       .join()
@@ -160,7 +201,7 @@ export function connectToPhoenixChannelForEvents({
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_ERROR, (response) => {
-        dispatch(phoenixChannelJoinError({ error: response, channelTopic }));
+        dispatch(phoenixChannelJoinError({ error: response, channelTopic, channel }));
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
@@ -168,13 +209,15 @@ export function connectToPhoenixChannelForEvents({
           phoenixChannelTimeOut({
             channelTopic,
             error: response,
+            channel,
           })
         );
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       });
 
     return {
-      type: responseActionType,
+      type: channelActionTypes.CHANNEL_UPDATED,
+      presence,
       channel,
     };
   }
@@ -188,7 +231,7 @@ export function connectToPhoenixChannelForEvents({
       }
     });
   }
-  return { type: PHOENIX_CHANNEL_UPDATED, channel };
+  return { type: channelActionTypes.CHANNEL_UPDATED, channel };
 }
 
 /**

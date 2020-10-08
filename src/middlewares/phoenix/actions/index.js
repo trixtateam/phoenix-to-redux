@@ -130,25 +130,24 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
  * @param {Channel} - parameters.channel - phoenix channel
  */
 export function connectPhoenixChannelPresence({ channel, dispatch }) {
+  if (!channel) return null;
   const presence = new Presence(channel);
   presence.onJoin((id, current, newPrescence) => {
-    console.log('user has entered for the first time', newPrescence);
     dispatch(channelPresenceJoin({ id, current, newPrescence, channel }));
     if (!current) {
-      console.log('user has entered for the first time', newPrescence);
+      // console.log('user has entered for the first time', newPrescence);
     } else {
-      console.log('user additional presence', newPrescence);
+      // console.log('user additional presence', newPrescence);
     }
   });
 
   // detect if user has left from all tabs/devices, or is still present
   presence.onLeave((id, current, leftPrescence) => {
-    console.log('user has left from all devices', leftPrescence);
     dispatch(channelPresenceLeave({ id, current, leftPrescence, channel }));
     if (current.metas.length === 0) {
-      console.log('user has left from all devices', leftPrescence);
+      // console.log('user has left from all devices', leftPrescence);
     } else {
-      console.log('user left from a device', leftPrescence);
+      // console.log('user left from a device', leftPrescence);
     }
   });
   // receive presence data from server
@@ -170,24 +169,25 @@ export function connectPhoenixChannelPresence({ channel, dispatch }) {
  * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
  * @param {String=} [params.token = null] params.token - token for channel
  * @param {Object} params.socket - phoenix socket
+ * @param {Boolean} params.logPresence - determines if you presence should be tracked for the channel
  * @returns {Object}
  */
 export function connectToPhoenixChannelForEvents({
   dispatch,
   channelTopic,
+  logPresence,
   events,
   token = null,
   socket,
 }) {
   let channel = findChannelByName({ channelTopic, socket });
+  const presence = logPresence ? connectPhoenixChannelPresence({ dispatch, channel }) : false;
   if (!channel && !isNullOrEmpty(channelTopic)) {
     channel = connectToPhoenixChannel({ socket, channelTopic, dispatch, token });
 
     if (!channel) {
       return { type: NO_PHOENIX_CHANNEL_FOUND };
     }
-
-    const presence = connectPhoenixChannelPresence({ dispatch, channel });
 
     channel
       .join()
@@ -231,7 +231,7 @@ export function connectToPhoenixChannelForEvents({
       }
     });
   }
-  return { type: channelActionTypes.CHANNEL_UPDATED, channel };
+  return { type: channelActionTypes.CHANNEL_UPDATED, channel, presence };
 }
 
 /**

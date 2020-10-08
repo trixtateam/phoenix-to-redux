@@ -176,7 +176,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socketDetails = selectPhoenixSocketDetails(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
-      const { channelTopic, domainUrl, events, channelToken } = action.data;
+      const { channelTopic, domainUrl, events, channelToken, logPresence } = action.data;
 
       const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
       const loggedInDomain = `${domain}/websocket`;
@@ -201,6 +201,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           dispatch,
           channelTopic,
           events,
+          logPresence,
           token: channelToken,
           socket,
         })

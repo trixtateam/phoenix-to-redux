@@ -39,7 +39,6 @@ export function channelPresenceUpdate({ list, channel }) {
  * @param {Channel} params.channel - phoenix channel
  */
 export function channelPresenceLeave({ id, current, leftPrescence, channel }) {
-  console.info('channelPresenceLeave', id, current, leftPrescence, channel);
   return {
     type: channelActionTypes.CHANNEL_PRESENCE_LEAVE,
     id,
@@ -58,7 +57,6 @@ export function channelPresenceLeave({ id, current, leftPrescence, channel }) {
  * @param {Channel} params.channel - phoenix channel
  */
 export function channelPresenceJoin({ id, current, newPrescence, channel }) {
-  console.info('channelPresenceJoin', id, current, newPrescence, channel);
   return {
     type: channelActionTypes.CHANNEL_PRESENCE_JOIN,
     id,

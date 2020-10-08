@@ -10,12 +10,20 @@ import { PHOENIX_GET_CHANNEL, PHOENIX_PUSH_TO_CHANNEL } from '../../constants';
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {String?} params.token - token for channel
+ * @param {Boolean?} params.logPresence - determines if you presence should be tracked for the channel
  */
-export function getPhoenixChannel({ channelTopic, events = [], token = null, domainUrl = null }) {
+export function getPhoenixChannel({
+  logPresence = false,
+  channelTopic,
+  events = [],
+  token = null,
+  domainUrl = null,
+}) {
   return {
     type: PHOENIX_GET_CHANNEL,
     data: {
       channelTopic,
+      logPresence,
       channelToken: token,
       domainUrl,
       events,

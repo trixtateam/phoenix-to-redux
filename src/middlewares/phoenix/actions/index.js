@@ -12,6 +12,7 @@ import {
   PHOENIX_CHANNEL_END_PROGRESS,
   NO_PHOENIX_CHANNEL_FOUND,
   channelStatuses,
+  phoenixChannelStatuses,
 } from '../../../constants';
 import { formatSocketDomain, hasValidSocket } from '../../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
@@ -120,6 +121,24 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
     dispatch(phoenixChannelError({ channel, channelTopic }));
   });
 
+  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_CHANGE, (data) => {
+    dispatch({
+      type: channelActionTypes.CHANNEL_PRESENCE_CHANGE,
+      data,
+      eventName: phoenixChannelStatuses.CHANNEL_PRESENCE_CHANGE,
+      channelTopic,
+    });
+  });
+
+  channel.on(phoenixChannelStatuses.CHANNEL_PRESENCE_STATE, (data) => {
+    dispatch({
+      type: channelActionTypes.CHANNEL_PRESENCE_STATE,
+      data,
+      eventName: phoenixChannelStatuses.CHANNEL_PRESENCE_STATE,
+      channelTopic,
+    });
+  });
+
   return channel;
 }
 
@@ -131,6 +150,7 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
  */
 export function connectPhoenixChannelPresence({ channel, dispatch }) {
   if (!channel) return null;
+
   const presence = new Presence(channel);
   presence.onJoin((id, current, newPrescence) => {
     dispatch(channelPresenceJoin({ id, current, newPrescence, channel }));
@@ -182,6 +202,7 @@ export function connectToPhoenixChannelForEvents({
 }) {
   let channel = findChannelByName({ channelTopic, socket });
   const presence = logPresence ? connectPhoenixChannelPresence({ dispatch, channel }) : false;
+
   if (!channel && !isNullOrEmpty(channelTopic)) {
     channel = connectToPhoenixChannel({ socket, channelTopic, dispatch, token });
 

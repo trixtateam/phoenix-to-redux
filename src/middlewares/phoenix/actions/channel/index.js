@@ -17,6 +17,18 @@ export function phoenixChannelJoin({ response, channel }) {
 }
 
 /**
+ * Response after leaving a phoenix channel
+ * @param {Object} params - parameters
+ * @param {Channel} params.channel - phoenix channel
+ */
+export function phoenixChannelLeave({ channel }) {
+  return {
+    type: channelActionTypes.CHANNEL_LEAVE,
+    channel,
+  };
+}
+
+/**
  * Pushes the presence list for the channel in phoenixReducer
  * @param {Object} params - parameters
  * @param {Array} params.list - list of present users

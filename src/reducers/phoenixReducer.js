@@ -19,6 +19,9 @@ export const initialState = {
 export const phoenixReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
+      case channelActionTypes.CHANNEL_LEAVE:
+        delete draft.channels[action.channel.topic];
+        break;
       case channelActionTypes.CHANNEL_UPDATED:
         if (action.presence) {
           if (!state.channelPresence[action.channel.topic]) {
@@ -37,11 +40,9 @@ export const phoenixReducer = (state = initialState, action) =>
         break;
       case socketActionTypes.SOCKET_OPEN:
         draft.socketStatus = socketStatuses.CONNECTED;
-        draft.message = false;
         break;
       case socketActionTypes.SOCKET_CONNECT:
         draft.socketStatus = socketStatuses.CONNECTING;
-        draft.message = false;
         draft.channels = {};
         draft.details = action.socket.params();
         draft.domain = getDomainKeyFromUrl({ domainUrl: action.socket.endPoint });
@@ -50,7 +51,6 @@ export const phoenixReducer = (state = initialState, action) =>
       case socketActionTypes.SOCKET_DISCONNECT:
       case socketActionTypes.SOCKET_ERROR:
         draft.socketStatus = socketStatuses.ERROR;
-        draft.message = action.error;
         break;
     }
   });

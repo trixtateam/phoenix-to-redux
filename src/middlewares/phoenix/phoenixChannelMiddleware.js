@@ -8,6 +8,7 @@ import {
   channelStatuses,
   channelActionTypes,
   socketStatuses,
+  PHOENIX_LEAVE_CHANNEL,
 } from '../../constants';
 import { formatSocketDomain, hasValidSocket } from '../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../helpers';
@@ -18,6 +19,7 @@ import {
   endPhoenixChannelProgress,
   updatePhoenixChannelLoadingStatus,
   setUpSocket,
+  leavePhoenixChannel,
 } from './actions';
 import {
   selectPhoenixSocket,
@@ -167,6 +169,15 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
           });
       }
+      return store.getState();
+    }
+    case PHOENIX_LEAVE_CHANNEL: {
+      const { dispatch } = store;
+      const currentState = store.getState();
+      const socket = selectPhoenixSocket(currentState);
+
+      const { channelTopic } = action.data;
+      leavePhoenixChannel({ channelTopic, socket, dispatch });
       return store.getState();
     }
     case PHOENIX_GET_CHANNEL: {

@@ -308,7 +308,16 @@ export function* channelPushErrorSaga({ error, channel, channelTopic }) {
  * @param {Object} params.channel - phoenix channel
  */
 export function* channelJoinSaga({ response, channel }) {
-  console.info('channelJoinSaga', error, channel, channelTopic);
+  console.info('channelJoinSaga', channel, channelTopic);
+}
+
+/**
+ * Response after leaving a phoenix channel
+ * @param {Object} params - parameters
+ * @param {Object} params.channel - phoenix channel
+ */
+export function* channelLeaveSaga({ channel }) {
+  console.info('channelLeaveSaga', channel, channelTopic);
 }
 
 /**
@@ -327,6 +336,7 @@ export default function* defaultSaga() {
   yield takeEvery(channelActionTypes.CHANNEL_TIMEOUT, channelTimeOutErrorSaga);
   yield takeEvery(channelActionTypes.CHANNEL_PUSH_ERROR, channelPushErrorSaga);
   yield takeEvery(channelActionTypes.CHANNEL_JOIN, channelJoinSaga);
+  yield takeEvery(channelActionTypes.CHANNEL_LEAVE, channelJoinSaga);
   yield takeEvery(channelActionTypes.CHANNEL_CLOSE, channelCloseSaga);
 }
 

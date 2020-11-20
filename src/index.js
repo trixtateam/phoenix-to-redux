@@ -19,6 +19,7 @@ export {
   pushToPhoenixChannel,
   getPhoenixChannel,
   connectPhoenix,
+  leavePhoenixChannel,
   disconnectPhoenix,
 } from './actions/index';
 export {

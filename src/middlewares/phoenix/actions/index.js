@@ -7,7 +7,6 @@ import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
   socketStatuses,
-  INVALID_SOCKET,
   channelActionTypes,
   PHOENIX_CHANNEL_END_PROGRESS,
   NO_PHOENIX_CHANNEL_FOUND,
@@ -25,33 +24,10 @@ import {
   phoenixChannelError,
   phoenixChannelJoin,
   phoenixChannelJoinError,
+  phoenixChannelLeave,
   phoenixChannelTimeOut,
 } from './channel';
 import { phoenixSocketError, openPhoenixSocket, closePhoenixSocket } from './socket';
-
-/**
- * Disconnects the channel by removing it from the socket
- *
- * @param {Object} params - parameters
- * @param {Function} params.dispatch - function to dispatch to redux store
- * @param {string} params.channelTopic - Name of channel/Topic
- * @param {Object} params.socket - phoenix socket
- */
-export function removeChannel({ dispatch, channelTopic, socket }) {
-  if (!hasValidSocket(socket)) {
-    dispatch(disconnectPhoenix());
-    return { type: INVALID_SOCKET };
-  }
-  const channel = findChannelByName({ channelTopic, socket });
-  leavePhoenixChannel({ channelTopic, socket });
-  if (channel) {
-    socket.remove(channel);
-  }
-  return {
-    type: channelActionTypes.CHANNEL_LEAVE,
-    channel,
-  };
-}
 
 /**
  * Searches the connected socket channels by the channelTopic and returns the found channel
@@ -71,12 +47,15 @@ export function findChannelByName({ channelTopic, socket }) {
  * Searches the connected socket channels by the channelTopic and removes the channel by un-subscribing for the given topic
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {Object} params.socket - phoenix socket
  */
-export function leavePhoenixChannel({ channelTopic, socket }) {
+export function leavePhoenixChannel({ dispatch, channelTopic, socket }) {
   const channel = findChannelByName({ channelTopic, socket });
   if (channel) {
-    channel.leave();
+    channel.leave().receive(channelStatuses.CHANNEL_OK, () => {
+      dispatch(phoenixChannelLeave({ channel }));
+    });
   }
 }
 

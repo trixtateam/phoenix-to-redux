@@ -1,5 +1,23 @@
 /* eslint-disable no-console */
-import { PHOENIX_GET_CHANNEL, PHOENIX_PUSH_TO_CHANNEL } from '../../constants';
+import {
+  PHOENIX_GET_CHANNEL,
+  PHOENIX_LEAVE_CHANNEL,
+  PHOENIX_PUSH_TO_CHANNEL,
+} from '../../constants';
+
+/**
+ * Will leave the channel for  given channelTopic
+ * @param {Object} params - parameters
+ * @param {string} params.channelTopic - Name of channel/Topic
+ */
+export function leavePhoenixChannel({ channelTopic }) {
+  return {
+    type: PHOENIX_LEAVE_CHANNEL,
+    data: {
+      channelTopic,
+    },
+  };
+}
 
 /**
  * Will attempt to create a connection to the socket for the given channelTopic, events with the stored credentials

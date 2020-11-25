@@ -19,7 +19,7 @@ import {
   endPhoenixChannelProgress,
   updatePhoenixChannelLoadingStatus,
   setUpSocket,
-  leavePhoenixChannel,
+  leaveChannel,
 } from './actions';
 import {
   selectPhoenixSocket,
@@ -177,7 +177,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socket = selectPhoenixSocket(currentState);
 
       const { channelTopic } = action.data;
-      leavePhoenixChannel({ channelTopic, socket, dispatch });
+      leaveChannel({ channelTopic, socket, dispatch });
       return store.getState();
     }
     case PHOENIX_GET_CHANNEL: {

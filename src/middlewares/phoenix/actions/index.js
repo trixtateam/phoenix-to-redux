@@ -15,7 +15,7 @@ import {
 } from '../../../constants';
 import { formatSocketDomain, hasValidSocket } from '../../../utils';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
-import { disconnectPhoenix } from '../../../actions';
+import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
   channelPresenceJoin,
   channelPresenceLeave,
@@ -50,7 +50,7 @@ export function findChannelByName({ channelTopic, socket }) {
  * @param {Function} params.dispatch - function to dispatch to redux store
  * @param {Object} params.socket - phoenix socket
  */
-export function leavePhoenixChannel({ dispatch, channelTopic, socket }) {
+export function leaveChannel({ dispatch, channelTopic, socket }) {
   const channel = findChannelByName({ channelTopic, socket });
   if (channel) {
     channel.leave().receive(channelStatuses.CHANNEL_OK, () => {
@@ -201,6 +201,9 @@ export function connectToPhoenixChannelForEvents({
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_ERROR, (response) => {
+        if (response && response.reason === 'unauthorized') {
+          dispatch(leavePhoenixChannel({ channelTopic }));
+        }
         dispatch(phoenixChannelJoinError({ error: response, channelTopic, channel }));
         dispatch(endPhoenixChannelProgress({ channelTopic }));
       })

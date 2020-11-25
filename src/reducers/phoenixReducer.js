@@ -49,6 +49,8 @@ export const phoenixReducer = (state = initialState, action) =>
         draft.socket = action.socket;
         break;
       case socketActionTypes.SOCKET_DISCONNECT:
+        draft.socketStatus = socketStatuses.CLOSED;
+        break;
       case socketActionTypes.SOCKET_ERROR:
         draft.socketStatus = socketStatuses.ERROR;
         break;

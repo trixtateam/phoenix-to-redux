@@ -10,7 +10,7 @@ import {
   socketStatuses,
   PHOENIX_LEAVE_CHANNEL,
 } from '../../constants';
-import { formatSocketDomain, hasValidSocket } from '../../utils';
+import { formatSocketDomain, hasValidSocket } from '../../utils/phoenix';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../helpers';
 import { disconnectPhoenix } from '../../actions';
 import {

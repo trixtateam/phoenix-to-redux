@@ -1,7 +1,7 @@
 import startsWith from 'lodash/startsWith';
 import isNull from 'lodash/isNull';
 import isUndefined from 'lodash/isUndefined';
-import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from './constants';
+import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from '../constants';
 
 /**
  * Based on the given domain parameter will format and return the correct space domain format

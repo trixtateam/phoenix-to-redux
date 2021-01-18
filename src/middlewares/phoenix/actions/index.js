@@ -2,7 +2,7 @@
 import { Socket, Presence, Channel } from 'phoenix';
 import isEqual from 'lodash/isEqual';
 import find from 'lodash/find';
-import get from 'lodash/get';
+import { get } from '../../../utils/object';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
@@ -13,7 +13,7 @@ import {
   channelStatuses,
   phoenixChannelStatuses,
 } from '../../../constants';
-import { formatSocketDomain, hasValidSocket } from '../../../utils';
+import { formatSocketDomain, hasValidSocket } from '../../../utils/phoenix';
 import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
 import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {

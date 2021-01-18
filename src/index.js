@@ -1,13 +1,13 @@
 export * as middlewares from './middlewares';
 export * as reducers from './reducers';
 export * as actions from './actions/index';
-export * as utils from './utils';
+export * as utils from './utils/index';
 export * as selectors from './selectors';
 export * as constants from './constants';
 
 export { phoenixReducer } from './reducers';
 export { createPhoenixChannelMiddleware } from './middlewares';
-export { formatSocketDomain } from './utils';
+export { formatSocketDomain } from './utils/phoenix';
 export {
   selectPhoenixSocket,
   selectPhoenixSocketDetails,

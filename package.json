@@ -69,7 +69,7 @@
     "immer": ">=3.0.0"
   },
   "dependencies": {
-    "immer": "3.0.0",
+    "immer": "8.0.1",
     "lodash": ">=4",
     "phoenix": "1.5.4",
     "reselect": "4.0.0"

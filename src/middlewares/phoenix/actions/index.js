@@ -1,8 +1,5 @@
 // eslint-disable-next-line no-unused-vars
 import { Socket, Presence, Channel } from 'phoenix';
-import isEqual from 'lodash/isEqual';
-import find from 'lodash/find';
-import { get } from '../../../utils/object';
 import {
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
@@ -13,8 +10,13 @@ import {
   channelStatuses,
   phoenixChannelStatuses,
 } from '../../../constants';
-import { formatSocketDomain, hasValidSocket } from '../../../utils/phoenix';
-import { isNullOrEmpty, getDomainKeyFromUrl } from '../../../helpers';
+import {
+  formatSocketDomain,
+  getDomainKeyFromUrl,
+  get,
+  hasValidSocket,
+  isNullOrEmpty,
+} from '../../../utils';
 import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
   channelPresenceJoin,
@@ -227,7 +229,7 @@ export function connectToPhoenixChannelForEvents({
 
   if (channel && events) {
     events.forEach(({ eventName, eventActionType }) => {
-      if (!find(get(channel, 'bindings', []), { event: eventName })) {
+      if (!get(channel, 'bindings', []).find({ event: eventName })) {
         channel.on(eventName, (data) => {
           dispatch({ type: eventActionType, data, eventName, channelTopic });
         });
@@ -266,10 +268,7 @@ export function setUpSocket({ dispatch, domain, params }) {
     socket.connect();
     socket.onError((error) => {
       const connectionState = socket.connectionState();
-      if (
-        isEqual(connectionState, socketStatuses.CLOSED) ||
-        isEqual(connectionState, socketStatuses.CLOSING)
-      ) {
+      if (connectionState === socketStatuses.CLOSED || connectionState === socketStatuses.CLOSING) {
         dispatch(disconnectPhoenix());
       }
       dispatch(

@@ -7,7 +7,7 @@ export * as constants from './constants';
 
 export { phoenixReducer } from './reducers';
 export { createPhoenixChannelMiddleware } from './middlewares';
-export { formatSocketDomain } from './utils/phoenix';
+export { formatSocketDomain } from './utils';
 export {
   selectPhoenixSocket,
   selectPhoenixSocketDetails,

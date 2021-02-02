@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { initialState } from '../../reducers/phoenixReducer';
-import { isNullOrEmpty } from '../../helpers';
+import { isNullOrEmpty } from '../../utils';
 
 const selectPhoenix = (state) => state.phoenix || initialState;
 const selectPhoenixSocket = (state) => state.phoenix.socket;

@@ -1,5 +1,3 @@
-import isEqual from 'lodash/isEqual';
-import merge from 'lodash/merge';
 import {
   PHOENIX_GET_CHANNEL,
   PHOENIX_DISCONNECT_SOCKET,
@@ -10,8 +8,13 @@ import {
   socketStatuses,
   PHOENIX_LEAVE_CHANNEL,
 } from '../../constants';
-import { formatSocketDomain, hasValidSocket } from '../../utils/phoenix';
-import { isNullOrEmpty, getDomainKeyFromUrl } from '../../helpers';
+import {
+  formatSocketDomain,
+  getDomainKeyFromUrl,
+  hasValidSocket,
+  isEqual,
+  isNullOrEmpty,
+} from '../../utils';
 import { disconnectPhoenix } from '../../actions';
 import {
   connectToPhoenixChannelForEvents,
@@ -121,7 +124,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 dispatch({
                   type: channelResponseEvent,
                   channelTopic,
-                  data: merge(data, additionalData),
+                  data: { ...data, ...additionalData },
                   dispatch,
                 });
               } else {
@@ -162,7 +165,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 channelTopic,
                 loadingStatusKey,
                 data: additionalData,
-                error: merge({ message: 'Request time out' }, data),
+                error: { message: 'Request time out', ...data },
               });
             }
             dispatch(phoenixChannelTimeOut({ error: data, channelTopic, channel }));

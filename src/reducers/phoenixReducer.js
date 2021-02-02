@@ -5,7 +5,7 @@
  */
 import produce from 'immer';
 import { socketActionTypes, socketStatuses, channelActionTypes } from '../constants';
-import { getDomainKeyFromUrl } from '../helpers';
+import { getDomainKeyFromUrl } from '../utils';
 
 export const initialState = {
   socket: false,

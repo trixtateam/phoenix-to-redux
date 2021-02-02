@@ -1,6 +1,3 @@
-import startsWith from 'lodash/startsWith';
-import isNull from 'lodash/isNull';
-import isUndefined from 'lodash/isUndefined';
 import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from '../constants';
 
 /**
@@ -27,7 +24,7 @@ export function formatSocketDomain({ domainString }) {
     !domainUrl.includes(SOCKET_PROTOCOL_SECURE) &&
     !domainUrl.includes(SOCKET_PROTOCOL_UN_SECURE)
   ) {
-    if (startsWith(domainUrl, 'localhost')) {
+    if (domainUrl.startsWith('localhost', 1)) {
       domainUrl = `${SOCKET_PROTOCOL_UN_SECURE}${domainUrl}`;
     } else {
       domainUrl = `${SOCKET_PROTOCOL_SECURE}${domainUrl}`;
@@ -46,10 +43,10 @@ export function hasValidSocket(socket) {
   if (socket === false) {
     return false;
   }
-  if (isNull(socket)) {
+  if (socket === null) {
     return false;
   }
-  if (isUndefined(socket)) {
+  if (typeof socket === 'undefined' || socket === 'undefined') {
     return false;
   }
 

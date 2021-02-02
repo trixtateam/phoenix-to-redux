@@ -1,6 +1,6 @@
 {
   "name": "@trixta/phoenix-to-redux",
-  "version": "3.4.2-beta.1",
+  "version": "3.4.3-beta.0",
   "publishConfig": {
     "access": "public"
   },
@@ -63,14 +63,12 @@
     "node": ">=6"
   },
   "peerDependencies": {
-    "lodash": "~4.17.19",
     "phoenix": "~1.5.4",
     "reselect": ">=4.0.0",
     "immer": ">=3.0.0"
   },
   "dependencies": {
     "immer": "3.0.0",
-    "lodash": ">=4",
     "phoenix": "1.5.4",
     "reselect": "4.0.0"
   },
@@ -83,7 +81,6 @@
     "@rollup/plugin-node-resolve": "^8.4.0",
     "babel-eslint": "10.1.0",
     "babel-plugin-dynamic-import-node": "2.3.3",
-    "babel-plugin-lodash": "^3.3.4",
     "eslint": "7.6.0",
     "eslint-config-airbnb": "18.2.0",
     "eslint-config-airbnb-base": "14.2.0",

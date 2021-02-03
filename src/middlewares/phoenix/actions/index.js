@@ -229,7 +229,8 @@ export function connectToPhoenixChannelForEvents({
 
   if (channel && events) {
     events.forEach(({ eventName, eventActionType }) => {
-      if (!get(channel, 'bindings', []).find({ event: eventName })) {
+      const bindings = get(channel, 'bindings', []);
+      if (!bindings.find(({ event }) => event === eventName)) {
         channel.on(eventName, (data) => {
           dispatch({ type: eventActionType, data, eventName, channelTopic });
         });

@@ -24,7 +24,7 @@ export function formatSocketDomain({ domainString }) {
     !domainUrl.includes(SOCKET_PROTOCOL_SECURE) &&
     !domainUrl.includes(SOCKET_PROTOCOL_UN_SECURE)
   ) {
-    if (domainUrl.startsWith('localhost', 1)) {
+    if (domainUrl.startsWith('localhost', 0)) {
       domainUrl = `${SOCKET_PROTOCOL_UN_SECURE}${domainUrl}`;
     } else {
       domainUrl = `${SOCKET_PROTOCOL_SECURE}${domainUrl}`;

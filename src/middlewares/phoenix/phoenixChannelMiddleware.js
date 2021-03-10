@@ -1,13 +1,19 @@
+import { disconnectPhoenix } from '../../actions';
 import {
-  PHOENIX_GET_CHANNEL,
-  PHOENIX_DISCONNECT_SOCKET,
-  PHOENIX_CONNECT_SOCKET,
-  PHOENIX_PUSH_TO_CHANNEL,
-  channelStatuses,
   channelActionTypes,
-  socketStatuses,
+  channelStatuses,
+  PHOENIX_CONNECT_SOCKET,
+  PHOENIX_DISCONNECT_SOCKET,
+  PHOENIX_GET_CHANNEL,
   PHOENIX_LEAVE_CHANNEL,
+  PHOENIX_PUSH_TO_CHANNEL,
+  socketStatuses,
 } from '../../constants';
+import {
+  selectPhoenixSocket,
+  selectPhoenixSocketDetails,
+  selectPhoenixSocketDomain,
+} from '../../selectors/socket/selectors';
 import {
   formatSocketDomain,
   getDomainKeyFromUrl,
@@ -15,22 +21,16 @@ import {
   isEqual,
   isNullOrEmpty,
 } from '../../utils';
-import { disconnectPhoenix } from '../../actions';
 import {
   connectToPhoenixChannelForEvents,
-  findChannelByName,
   endPhoenixChannelProgress,
-  updatePhoenixChannelLoadingStatus,
-  setUpSocket,
+  findChannelByName,
   leaveChannel,
+  setUpSocket,
+  updatePhoenixChannelLoadingStatus,
 } from './actions';
-import {
-  selectPhoenixSocket,
-  selectPhoenixSocketDetails,
-  selectPhoenixSocketDomain,
-} from '../../selectors/socket/selectors';
-import { disconnectPhoenixSocket } from './actions/socket';
 import { phoenixChannelPushError, phoenixChannelTimeOut } from './actions/channel';
+import { disconnectPhoenixSocket } from './actions/socket';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -195,7 +195,12 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
       const loggedInDomain = `${domain}/websocket`;
 
-      if (!isEqual(socketDomain, loggedInDomain)) {
+      if (
+        !isEqual(
+          getDomainKeyFromUrl({ domainUrl: socketDomain }),
+          getDomainKeyFromUrl({ domainUrl: loggedInDomain })
+        )
+      ) {
         socket = false;
       }
 

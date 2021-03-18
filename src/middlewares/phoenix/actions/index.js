@@ -1,23 +1,23 @@
 // eslint-disable-next-line no-unused-vars
-import { Socket, Presence, Channel } from 'phoenix';
+import { Channel, Presence, Socket } from 'phoenix';
+import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
+  channelActionTypes,
+  channelStatuses,
+  NO_PHOENIX_CHANNEL_FOUND,
+  phoenixChannelStatuses,
+  PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
-  socketStatuses,
-  channelActionTypes,
-  PHOENIX_CHANNEL_END_PROGRESS,
-  NO_PHOENIX_CHANNEL_FOUND,
-  channelStatuses,
-  phoenixChannelStatuses,
+  socketStatuses
 } from '../../../constants';
 import {
   formatSocketDomain,
-  getDomainKeyFromUrl,
   get,
+  getDomainKeyFromUrl,
   hasValidSocket,
-  isNullOrEmpty,
+  isNullOrEmpty
 } from '../../../utils';
-import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
   channelPresenceJoin,
   channelPresenceLeave,
@@ -27,9 +27,9 @@ import {
   phoenixChannelJoin,
   phoenixChannelJoinError,
   phoenixChannelLeave,
-  phoenixChannelTimeOut,
+  phoenixChannelTimeOut
 } from './channel';
-import { phoenixSocketError, openPhoenixSocket, closePhoenixSocket } from './socket';
+import { closePhoenixSocket, openPhoenixSocket, phoenixSocketError } from './socket';
 
 /**
  * Searches the connected socket channels by the channelTopic and returns the found channel
@@ -200,14 +200,14 @@ export function connectToPhoenixChannelForEvents({
             channel,
           })
         );
-        dispatch(endPhoenixChannelProgress({ channelTopic }));
+        dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_ERROR, (response) => {
         if (response && response.reason === 'unauthorized') {
           dispatch(leavePhoenixChannel({ channelTopic }));
         }
         dispatch(phoenixChannelJoinError({ error: response, channelTopic, channel }));
-        dispatch(endPhoenixChannelProgress({ channelTopic }));
+        dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
         dispatch(
@@ -217,7 +217,7 @@ export function connectToPhoenixChannelForEvents({
             channel,
           })
         );
-        dispatch(endPhoenixChannelProgress({ channelTopic }));
+        dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
       });
 
     return {

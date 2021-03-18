@@ -1,9 +1,5 @@
 import { createSelector } from 'reselect';
-import { initialState } from '../../reducers/phoenixReducer';
+import { selectPhoenix } from '../socket/selectors';
 
-const selectPhoenix = (state) => state.phoenix || initialState;
-
-const makeSelectPhoenixChannels = () =>
+export const makeSelectPhoenixChannels = () =>
   createSelector(selectPhoenix, (phoenixState) => phoenixState.socket.channels);
-
-export { makeSelectPhoenixChannels };

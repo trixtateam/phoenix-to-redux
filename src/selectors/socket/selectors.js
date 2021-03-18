@@ -2,54 +2,42 @@ import { createSelector } from 'reselect';
 import { initialState } from '../../reducers/phoenixReducer';
 import { isNullOrEmpty } from '../../utils';
 
-const selectPhoenix = (state) => state.phoenix || initialState;
-const selectPhoenixSocket = (state) => state.phoenix.socket;
-const selectPhoenixSocketDomain = (state) => state.phoenix.domain;
-const selectPhoenixSocketDetails = (state) => state.phoenix.details;
-const selectPhoenixSocketAuthenticated = (state) =>
+export const selectPhoenix = (state) => state.phoenix || initialState;
+export const selectPhoenixSocket = (state) => state.phoenix.socket;
+export const selectPhoenixSocketDomain = (state) => state.phoenix.domain;
+export const selectPhoenixSocketDetails = (state) => state.phoenix.details;
+export const selectPhoenixSocketAuthenticated = (state) =>
   state.phoenix.details && !isNullOrEmpty(state.phoenix.details.token);
 
-const selectPhoenixChannelPresence = (state, channelTopic) =>
+export const selectPhoenixChannelPresence = (state, channelTopic) =>
   state.phoenix.channelPresence[channelTopic] || null;
 
 /**
  * Selects the current connected domain for socket
  */
-const makeSelectPhoenixSocketDomain = () =>
+export const makeSelectPhoenixSocketDomain = () =>
   createSelector(selectPhoenixSocketDomain, (domain) => domain);
 
 /**
  * Selects the current params for the phoenix socket
  */
-const makeSelectPhoenixSocketDetails = () =>
+export const makeSelectPhoenixSocketDetails = () =>
   createSelector(selectPhoenixSocketDetails, (details) => details);
 
 /**
  * Returns true or false if the phoenix socket has a token
  */
-const makeSelectPhoenixSocketIsAuthenticated = () =>
+export const makeSelectPhoenixSocketIsAuthenticated = () =>
   createSelector(selectPhoenixSocketAuthenticated, (authenticated) => authenticated);
 
 /**
  * Selects the current phoenix socket
  */
-const makeSelectPhoenixSocket = () =>
+export const makeSelectPhoenixSocket = () =>
   createSelector(selectPhoenix, (phoenixState) => phoenixState.socket);
 
 /**
  * Selects the current phoenix socket status
  */
-const makeSelectPhoenixSocketStatus = () =>
+export const makeSelectPhoenixSocketStatus = () =>
   createSelector(selectPhoenix, (phoenixState) => phoenixState.socketStatus);
-
-export {
-  selectPhoenixSocket,
-  selectPhoenixChannelPresence,
-  selectPhoenixSocketDomain,
-  selectPhoenixSocketDetails,
-  makeSelectPhoenixSocketDomain,
-  makeSelectPhoenixSocketDetails,
-  makeSelectPhoenixSocket,
-  makeSelectPhoenixSocketIsAuthenticated,
-  makeSelectPhoenixSocketStatus,
-};

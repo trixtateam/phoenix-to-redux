@@ -1,4 +1,4 @@
-export const pushPromise = (channel, message, payload, timeout) =>
+export const pushPromise = (channel, message, payload, timeout) => () =>
   new Promise((resolve, reject) => {
     if (!channel) return reject(new Error('Missing channel'));
     return channel

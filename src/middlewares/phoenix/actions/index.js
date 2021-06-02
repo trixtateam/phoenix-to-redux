@@ -9,14 +9,14 @@ import {
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
-  socketStatuses
+  socketStatuses,
 } from '../../../constants';
 import {
   formatSocketDomain,
   get,
   getDomainKeyFromUrl,
   hasValidSocket,
-  isNullOrEmpty
+  isNullOrEmpty,
 } from '../../../utils';
 import {
   channelPresenceJoin,
@@ -27,7 +27,7 @@ import {
   phoenixChannelJoin,
   phoenixChannelJoinError,
   phoenixChannelLeave,
-  phoenixChannelTimeOut
+  phoenixChannelTimeOut,
 } from './channel';
 import { closePhoenixSocket, openPhoenixSocket, phoenixSocketError } from './socket';
 
@@ -238,6 +238,28 @@ export function connectToPhoenixChannelForEvents({
     });
   }
   return { type: channelActionTypes.CHANNEL_UPDATED, channel, presence };
+}
+
+/**
+ * Unsubscribes off of channel events to given channel name
+ * @param {Object} params - parameters
+ * @param {Function} params.dispatch - function to dispatch to redux store
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string[]=} [params.events=[]]  params.events - [eventName] event map to unsubcribe to on channel
+ * @param {Object} params.socket - phoenix socket
+ * @returns {Object}
+ */
+export function leaveEventsForPhoenixChannel({ channelTopic, dispatch, events, socket }) {
+  const channel = findChannelByName({ channelTopic, socket });
+  if (channel && events) {
+    events.forEach((eventName) => {
+      const bindings = get(channel, 'bindings', []);
+      if (bindings.find(({ event }) => event === eventName)) {
+        channel.off(eventName);
+      }
+    });
+  }
+  dispatch({ type: channelActionTypes.CHANNEL_UPDATED, channel });
 }
 
 /**

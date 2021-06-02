@@ -6,6 +6,7 @@ import {
   PHOENIX_DISCONNECT_SOCKET,
   PHOENIX_GET_CHANNEL,
   PHOENIX_LEAVE_CHANNEL,
+  PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
   socketStatuses,
 } from '../../constants';
@@ -26,6 +27,7 @@ import {
   endPhoenixChannelProgress,
   findChannelByName,
   leaveChannel,
+  leaveEventsForPhoenixChannel,
   setUpSocket,
   updatePhoenixChannelLoadingStatus,
 } from './actions';
@@ -181,6 +183,15 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
 
       const { channelTopic } = action.data;
       leaveChannel({ channelTopic, socket, dispatch });
+      return store.getState();
+    }
+    case PHOENIX_LEAVE_CHANNEL_EVENTS: {
+      const { dispatch } = store;
+      const currentState = store.getState();
+      const socket = selectPhoenixSocket(currentState);
+
+      const { channelTopic, events } = action.data;
+      leaveEventsForPhoenixChannel({ channelTopic, socket, events, dispatch });
       return store.getState();
     }
     case PHOENIX_GET_CHANNEL: {

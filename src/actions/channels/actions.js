@@ -2,11 +2,12 @@
 import {
   PHOENIX_GET_CHANNEL,
   PHOENIX_LEAVE_CHANNEL,
+  PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
 } from '../../constants';
 
 /**
- * Will leave the channel for  given channelTopic
+ * Will leave the channel for  given channelTopic,Unsubscribes off of channel events
  * @param {Object} params - parameters
  * @param {string} params.channelTopic - Name of channel/Topic
  */
@@ -20,7 +21,39 @@ export function leavePhoenixChannel({ channelTopic }) {
 }
 
 /**
- * Will attempt to create a connection to the socket for the given channelTopic, events with the stored credentials
+ * Unsubscribes off of channel events for  given channelTopic
+ * @param {Object} params - parameters
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string[]} params.events - Array of event names to unsubscribe to
+ */
+export function leavePhoenixChannelEvents({ channelTopic, events }) {
+  return {
+    type: PHOENIX_LEAVE_CHANNEL_EVENTS,
+    data: {
+      channelTopic,
+      events,
+    },
+  };
+}
+
+/**
+ * Unsubscribes off of channel events for given channelTopic
+ * @param {Object} params - parameters
+ * @param {string} params.channelTopic - Name of channel/Topic
+ * @param {string} params.event - event name to unsubscribe to
+ */
+export function leavePhoenixChannelEvent({ channelTopic, event }) {
+  return {
+    type: PHOENIX_LEAVE_CHANNEL_EVENTS,
+    data: {
+      channelTopic,
+      events: [event],
+    },
+  };
+}
+
+/**
+ * Will attempt to create a connection to the socket for the given channelTopic, Subscribes on channel events
  * @param {Object} params - parameters
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.

@@ -1,6 +1,6 @@
 {
   "name": "@trixta/phoenix-to-redux",
-  "version": "3.4.7-beta.0",
+  "version": "3.4.8-beta.0",
   "publishConfig": {
     "access": "public"
   },
@@ -37,10 +37,10 @@
     "dev": "rollup -c --watch",
     "build": "rollup -c",
     "prebuild": "rimraf lib",
-    "lint": "npm run lint:js",
-    "lint:eslint": "eslint --ignore-path .gitignore",
-    "lint:eslint:fix": "eslint --ignore-path .gitignore . --fix",
-    "lint:js": "npm run lint:eslint -- . ",
+    "clean": "yarn clean:modules && yarn clean:cache",
+    "clean:modules": "rimraf node_modules",
+    "lint": "yarn run eslint src --ignore-path .gitignore",
+    "lint:fix": "yarn run lint --fix",
     "lint:staged": "lint-staged",
     "prettify": "prettier --write",
     "prepare": "npm run build",
@@ -55,8 +55,8 @@
     "test:staged": "jest --findRelatedTests"
   },
   "lint-staged": {
-    "*.js": [
-      "npm run lint:eslint:fix",
+    "*.{js}": [
+      "yarn run lint:fix",
       "git add --force"
     ],
     "*.json": [
@@ -71,12 +71,11 @@
   "peerDependencies": {
     "phoenix": "~1.5.4",
     "reselect": ">=4.0.0",
-    "immer": ">=3.0.0"
+    "immer": ">=8.0.1"
   },
   "dependencies": {
-    "immer": "3.0.0",
-    "phoenix": "1.5.4",
-    "reselect": "4.0.0"
+    "immer": ">=8.0.1",
+    "phoenix": "1.5.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",

@@ -4,7 +4,7 @@
  *
  */
 import produce from 'immer';
-import { socketActionTypes, socketStatuses, channelActionTypes } from '../constants';
+import { channelActionTypes, socketActionTypes, socketStatuses } from '../constants';
 import { getDomainKeyFromUrl } from '../utils';
 
 export const initialState = {
@@ -20,10 +20,12 @@ export const phoenixReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
       case channelActionTypes.CHANNEL_LEAVE:
-        delete draft.channels[action.channel.topic];
+        if (action.channel) {
+          delete draft.channels[action.channel.topic];
+        }
         break;
       case channelActionTypes.CHANNEL_UPDATED:
-        if (action.presence) {
+        if (action.presence && action.channel) {
           if (!state.channelPresence[action.channel.topic]) {
             draft.channelPresence[action.channel.topic] = {
               presence: action.presence,
@@ -33,10 +35,15 @@ export const phoenixReducer = (state = initialState, action) =>
             draft.channelPresence[action.channel.topic].presence = action.presence;
           }
         }
-        draft.channels[action.channel.topic] = action.channel;
+        if (action.channel) {
+          draft.channels[action.channel.topic] = action.channel;
+        }
         break;
       case channelActionTypes.CHANNEL_PRESENCE_UPDATE:
-        draft.channelPresence[action.channel.topic].users = action.list;
+        if (action.channel) {
+          draft.channelPresence[action.channel.topic].users = action.list;
+        }
+
         break;
       case socketActionTypes.SOCKET_OPEN:
         draft.socketStatus = socketStatuses.CONNECTED;

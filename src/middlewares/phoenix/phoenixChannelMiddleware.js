@@ -8,19 +8,19 @@ import {
   PHOENIX_LEAVE_CHANNEL,
   PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
-  socketStatuses,
+  socketStatuses
 } from '../../constants';
 import {
   selectPhoenixSocket,
   selectPhoenixSocketDetails,
-  selectPhoenixSocketDomain,
+  selectPhoenixSocketDomain
 } from '../../selectors/socket/selectors';
 import {
   formatSocketDomain,
   getDomainKeyFromUrl,
   hasValidSocket,
   isEqual,
-  isNullOrEmpty,
+  isNullOrEmpty
 } from '../../utils';
 import {
   connectToPhoenixChannelForEvents,
@@ -29,7 +29,7 @@ import {
   leaveChannel,
   leaveEventsForPhoenixChannel,
   setUpSocket,
-  updatePhoenixChannelLoadingStatus,
+  updatePhoenixChannelLoadingStatus
 } from './actions';
 import { phoenixChannelPushError, phoenixChannelTimeOut } from './actions/channel';
 import { disconnectPhoenixSocket } from './actions/socket';
@@ -126,7 +126,8 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 dispatch({
                   type: channelResponseEvent,
                   channelTopic,
-                  data: { ...data, ...additionalData },
+                  data,
+                  additionalData,
                   dispatch,
                 });
               } else {
@@ -134,9 +135,9 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
               }
             }
           })
-          .receive(channelStatuses.CHANNEL_ERROR, (data) => {
+          .receive(channelStatuses.CHANNEL_ERROR, (error) => {
             if (dispatchChannelError) {
-              dispatch(phoenixChannelPushError({ error: data, channelTopic, channel }));
+              dispatch(phoenixChannelPushError({ error, channelTopic, channel }));
             }
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
             if (channelErrorResponseEvent) {
@@ -145,8 +146,8 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                   type: channelErrorResponseEvent,
                   channelTopic,
                   loadingStatusKey,
-                  data: additionalData,
-                  error: data,
+                  additionalData,
+                  error,
                   dispatch,
                 });
               } else {
@@ -154,23 +155,23 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                   type: channelErrorResponseEvent,
                   channelTopic,
                   loadingStatusKey,
-                  error: data,
+                  error,
                   dispatch,
                 });
               }
             }
           })
-          .receive(channelStatuses.CHANNEL_TIMEOUT, (data) => {
+          .receive(channelStatuses.CHANNEL_TIMEOUT, (error) => {
             if (channelTimeOutEvent) {
               dispatch({
                 type: channelTimeOutEvent,
                 channelTopic,
                 loadingStatusKey,
-                data: additionalData,
-                error: { message: 'Request time out', ...data },
+                additionalData,
+                error: { message: 'Request time out', ...error },
               });
             }
-            dispatch(phoenixChannelTimeOut({ error: data, channelTopic, channel }));
+            dispatch(phoenixChannelTimeOut({ error, channelTopic, channel }));
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
           });
       }

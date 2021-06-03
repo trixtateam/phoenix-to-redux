@@ -92,7 +92,7 @@ export function getPhoenixChannel({
  * @param {?string} params.channelResponseEvent - name of action to dispatch to reducer on response from pushing to channel
  * @param {?string} params.channelErrorResponseEvent -  name of action to dispatch to reducer on  error from pushing to channel
  * @param {object} params.requestData - data payload to push on the channel
- * @param {?object} params.additionalData - this object will merge with the response data object received from the channel for you to use on later note
+ * @param {?object} params.additionalData - this object will be available as additionalData on the response data object received from the channel for you to use on later note
  * @param {?boolean} params.dispatchChannelError - false by default, determines if should an on channel error occur dispatch PHOENIX_CHANNEL_ERROR to the reducer
  * @param {?number} params.channelPushTimeOut - timeout in milliseconds for pushing to the channel, default is 1500
  * @param {?boolean || string} params.channelTimeOutEvent - name of action to dispatch to reducer on timeout from pushing to channel

@@ -251,6 +251,7 @@ export function connectToPhoenixChannelForEvents({
  */
 export function leaveEventsForPhoenixChannel({ channelTopic, dispatch, events, socket }) {
   const channel = findChannelByName({ channelTopic, socket });
+
   if (channel && events) {
     events.forEach((eventName) => {
       const bindings = get(channel, 'bindings', []);
@@ -258,8 +259,8 @@ export function leaveEventsForPhoenixChannel({ channelTopic, dispatch, events, s
         channel.off(eventName);
       }
     });
+    dispatch({ type: channelActionTypes.CHANNEL_UPDATED, channel });
   }
-  dispatch({ type: channelActionTypes.CHANNEL_UPDATED, channel });
 }
 
 /**

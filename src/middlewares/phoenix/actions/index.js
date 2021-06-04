@@ -287,35 +287,33 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
 export function setUpSocket({ dispatch, domain, params }) {
   const domainUrl = formatSocketDomain({ domainString: domain });
   let socket = false;
-  if (!isNullOrEmpty(domainUrl)) {
-    socket = new Socket(domainUrl, { params });
-    socket.connect();
-    socket.onError((error) => {
-      const connectionState = socket.connectionState();
-      if (connectionState === socketStatuses.CLOSED || connectionState === socketStatuses.CLOSING) {
-        dispatch(disconnectPhoenix());
-      }
-      dispatch(
-        phoenixSocketError({
-          domainKey: getDomainKeyFromUrl({ domainUrl }),
-          error,
-          socketState: connectionState,
-        })
-      );
-    });
-    socket.onOpen(() => {
-      dispatch(openPhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
-    });
-    socket.onClose(() => {
-      dispatch(closePhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
-    });
+  if (isNullOrEmpty(domainUrl)) return disconnectPhoenix();
 
-    return {
-      type: socketActionTypes.SOCKET_CONNECT,
-      socket,
-      domainKey: getDomainKeyFromUrl({ domainUrl }),
-    };
-  }
+  socket = new Socket(domainUrl, { params });
+  socket.connect();
+  socket.onError((error) => {
+    const connectionState = socket.connectionState();
+    if (connectionState === socketStatuses.CLOSED || connectionState === socketStatuses.CLOSING) {
+      dispatch(disconnectPhoenix());
+    }
+    dispatch(
+      phoenixSocketError({
+        domainKey: getDomainKeyFromUrl({ domainUrl }),
+        error,
+        socketState: connectionState,
+      })
+    );
+  });
+  socket.onOpen(() => {
+    dispatch(openPhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
+  });
+  socket.onClose(() => {
+    dispatch(closePhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
+  });
 
-  return disconnectPhoenix();
+  return {
+    type: socketActionTypes.SOCKET_CONNECT,
+    socket,
+    domainKey: getDomainKeyFromUrl({ domainUrl }),
+  };
 }

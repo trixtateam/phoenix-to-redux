@@ -377,6 +377,8 @@ export function* socketConnectedSaga({ isAnonymous, socket, domainKey }) {
  * @param {string} params.domainKey - domain for socket
  */
 export function* socketErrorSaga({ error, socketState, domainKey }) {
+  // here you should check if your token is valid or not expired, if not
+  // disconnect phoenix
   console.error('socketErrorSaga',{ error, socketState, domainKey });
 }
 
@@ -386,20 +388,20 @@ export function* socketErrorSaga({ error, socketState, domainKey }) {
  * @param {Object} params - parameters
  * @param {Object} params.socket = socket being closed
  * @param {string} params.domainKey - domain for socket
- * @param {boolean} params.isAnonymous - true if socket was anonymous
+ * @param {object} params.params - socket.params()
  */
-export function* socketCloseSaga({ isAnonymous, socket, domainKey }) {
-  console.info('socketCloseSaga',{ isAnonymous, socket, domainKey });
+export function* socketCloseSaga({ params, socket, domainKey }) {
+  console.info('socketCloseSaga',{ params, socket, domainKey });
 }
 /**
  * After  phoenix socket disconnects
  * @param {Object} params - parameters
  * @param {Object} params.socket = socket being disconnected
  * @param {string} params.domainKey - domain for socket
- * @param {boolean} params.isAnonymous - true if socket was anonymous
+ * @param {Object} params.params - socket.params()
  */
-export function* socketDisconnectionSaga({ isAnonymous, socket, domainKey }) {
-  console.info('socketDisconnectionSaga',{ isAnonymous, socket, domainKey });
+export function* socketDisconnectionSaga({ params, socket, domainKey }) {
+  console.info('socketDisconnectionSaga',{ params, socket, domainKey });
 }
 
 export default function* defaultSaga() {
@@ -439,11 +441,7 @@ const appReducer = (state = initialState, action) =>
       case PHOENIX_CHANNEL_END_PROGRESS:
         // when the progress for loadingStatusKey for channel has completed
         {
-          const loadingStatusKey = _.get(
-            action,
-            'data.loadingStatusKey',
-            false
-          );
+          const loadingStatusKey = action.data.loadingStatusKey
           if (!loadingStatusKey) {
             draft.loading = false;
           } else {
@@ -453,7 +451,7 @@ const appReducer = (state = initialState, action) =>
         break;
       case PHOENIX_CHANNEL_LOADING_STATUS:
         // when the progress for loadingStatusKey is being updated
-        draft.loadingStatus[_.get(action, 'data.loadingStatusKey', '')] = {
+        draft.loadingStatus[action.data.loadingStatusKey] = {
           status: true,
         };
         break;

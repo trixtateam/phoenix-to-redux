@@ -9,7 +9,6 @@ import {
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
   socketActionTypes,
-  socketStatuses,
 } from '../../../constants';
 import {
   formatSocketDomain,
@@ -291,15 +290,11 @@ export function setUpSocket({ dispatch, domain, params }) {
     socket = new Socket(domainUrl, { params });
     socket.connect();
     socket.onError((error) => {
-      const connectionState = socket.connectionState();
-      if (connectionState === socketStatuses.CLOSED || connectionState === socketStatuses.CLOSING) {
-        dispatch(disconnectPhoenix());
-      }
       dispatch(
         phoenixSocketError({
           domainKey: getDomainKeyFromUrl({ domainUrl }),
           error,
-          socketState: connectionState,
+          socketState: socket.connectionState(),
         })
       );
     });

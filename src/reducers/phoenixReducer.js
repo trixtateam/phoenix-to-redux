@@ -43,7 +43,6 @@ export const phoenixReducer = (state = initialState, action) =>
         if (action.channel) {
           draft.channelPresence[action.channel.topic].users = action.list;
         }
-
         break;
       case socketActionTypes.SOCKET_OPEN:
         draft.socketStatus = socketStatuses.CONNECTED;

@@ -8,19 +8,19 @@ import {
   PHOENIX_LEAVE_CHANNEL,
   PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
-  socketStatuses
+  socketStatuses,
 } from '../../constants';
 import {
   selectPhoenixSocket,
   selectPhoenixSocketDetails,
-  selectPhoenixSocketDomain
+  selectPhoenixSocketDomain,
 } from '../../selectors/socket/selectors';
 import {
   formatSocketDomain,
   getDomainKeyFromUrl,
   hasValidSocket,
   isEqual,
-  isNullOrEmpty
+  isNullOrEmpty,
 } from '../../utils';
 import {
   connectToPhoenixChannelForEvents,
@@ -29,7 +29,7 @@ import {
   leaveChannel,
   leaveEventsForPhoenixChannel,
   setUpSocket,
-  updatePhoenixChannelLoadingStatus
+  updatePhoenixChannelLoadingStatus,
 } from './actions';
 import { phoenixChannelPushError, phoenixChannelTimeOut } from './actions/channel';
 import { disconnectPhoenixSocket } from './actions/socket';
@@ -79,7 +79,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socket = selectPhoenixSocket(currentState);
       const domainKey = selectPhoenixSocketDomain(currentState);
       if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
-        socket.disconnect();
+        socket.disconnect(null, 1000, 'Intentionally disconnecting socket');
         dispatch(disconnectPhoenixSocket({ domainKey, socket }));
       }
       return store.getState();

@@ -1,6 +1,6 @@
 {
   "name": "@trixta/phoenix-to-redux",
-  "version": "3.5.0-beta.0",
+  "version": "3.5.1-beta.0",
   "publishConfig": {
     "access": "public"
   },
@@ -69,13 +69,13 @@
     "node": ">=6"
   },
   "peerDependencies": {
-    "phoenix": "~1.5.4",
+    "phoenix": "~1.5.9",
     "reselect": ">=4.0.0",
     "immer": ">=8.0.1"
   },
   "dependencies": {
-    "immer": ">=8.0.1",
-    "phoenix": "1.5.4"
+    "immer": "~8.0.1",
+    "phoenix": "~1.5.9"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",

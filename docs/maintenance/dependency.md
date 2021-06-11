@@ -74,7 +74,7 @@ Identify problems that occur and try to resolve them by rolling back the respect
 **[0] PATCH UPDATES**
 
 ```
- phoenix                      1.3.4  →    1.5.4
+ phoenix                      1.5.4  →    1.5.9
  @rollup/plugin-commonjs    ^13.0.2  →  ^14.0.0
  eslint                      5.16.0  →    7.6.0
  eslint-config-airbnb        17.1.1  →   18.2.0
@@ -89,7 +89,6 @@ Identify problems that occur and try to resolve them by rolling back the respect
 **[1] MINOR UPDATES**
 
 ```
- lodash                           4.17.15  →  4.17.19
  @babel/cli                       ^7.10.1  →  ^7.10.5
  @babel/core                      ^7.10.2  →  ^7.10.5
  @babel/preset-env                ^7.10.2  →  ^7.10.4
@@ -108,7 +107,7 @@ Identify problems that occur and try to resolve them by rolling back the respect
 **[3] MAJOR UPDATES**
 
 ```
- phoenix                             1.3.4  →    1.5.4
+ phoenix                             1.5.4  →    1.5.9
  babel-eslint                       10.0.3  →   10.1.0
  @babel/core                       ^7.10.5  →  ^7.11.1
  @babel/preset-env                 ^7.10.4  →  ^7.11.0

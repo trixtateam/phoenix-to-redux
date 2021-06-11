@@ -1,9 +1,9 @@
 export const socketActionTypes = {
-  SOCKET_OPEN: 'PHOENIX_SOCKET_OPEN',
-  SOCKET_CLOSE: 'PHOENIX_SOCKET_CLOSE',
-  SOCKET_ERROR: 'PHOENIX_SOCKET_ERROR',
-  SOCKET_CONNECT: 'PHOENIX_SOCKET_CONNECT',
-  SOCKET_DISCONNECT: 'PHOENIX_SOCKET_DISCONNECT',
+  SOCKET_OPEN: '@trixta/phoenix-to-redux-event/PHOENIX_SOCKET_OPEN',
+  SOCKET_CLOSE: '@trixta/phoenix-to-redux-event/PHOENIX_SOCKET_CLOSE',
+  SOCKET_ERROR: '@trixta/phoenix-to-redux-event/PHOENIX_SOCKET_ERROR',
+  SOCKET_CONNECT: '@trixta/phoenix-to-redux-event/PHOENIX_SOCKET_CONNECT',
+  SOCKET_DISCONNECT: '@trixta/phoenix-to-redux-event/PHOENIX_SOCKET_DISCONNECT',
 };
 
 export const socketStatuses = {

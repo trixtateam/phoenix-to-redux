@@ -38,6 +38,7 @@ export default function createReducer() {
 ```
 
 ## 2. Setup Middleware
+[See example to setup middleware](https://redux-toolkit.js.org/api/configureStore)
 ```javascript
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';

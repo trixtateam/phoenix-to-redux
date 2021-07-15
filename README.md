@@ -36,46 +36,44 @@ export default function createReducer() {
 ```
 
 ## 2. Setup Middleware
+[See example to setup middleware](https://redux-toolkit.js.org/api/configureStore)
 ```javascript
-import { createStore, applyMiddleware, compose } from 'redux';
-import { routerMiddleware } from 'connected-react-router';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+import createSagaMiddleware from 'redux-saga';
+import rootSaga from './rootSaga';
 import createReducer from './reducers';
 
-const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
 
 export default function configureStore(initialState = {}) {
-  // Create the store with two middlewares
-  // 1. phoenixChannelMiddleWare: Makes redux connected to phoenix channels
-  const middlewares = [
-    phoenixChannelMiddleWare,
-  ];
+  const reduxSagaMonitorOptions = {};
+  // Makes redux connected to phoenix channels
+  const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();
+  const sagaMiddleware = createSagaMiddleware(reduxSagaMonitorOptions);
+  const middlewares = [sagaMiddleware,phoenixChannelMiddleWare];
 
-  const enhancers = [applyMiddleware(...middlewares)];
+  const enhancers = [];
 
-  // If Redux DevTools Extension is installed use it, otherwise use Redux compose
-  /* eslint-disable no-underscore-dangle, indent */
-  const composeEnhancers =
-    process.env.NODE_ENV !== 'production' &&
-    typeof window === 'object' &&
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
-      : compose;
-  /* eslint-enable */
+  const store = configureStore({
+    reducer: createReducer(),
+    middleware: [
+      ...getDefaultMiddleware({
+        thunk: false,
+        immutableCheck: {
+          ignore: ['socket', 'channel', 'trixta', 'phoenix', 'router'],
+        },
+        serializableCheck: false,
+      }),
+      ...middlewares,
+    ],
+    devTools:
+      /* istanbul ignore next line */
+      process.env.NODE_ENV !== 'production' ||
+      process.env.PUBLIC_URL.length > 0,
+    enhancers,
+  });
 
-  const store = createStore(
-    createReducer(),
-    initialState,
-    composeEnhancers(...enhancers)
-  );
-
-  // Make reducers hot reloadable, see http://mxs.is/googmo
-  /* istanbul ignore next */
-  if (module.hot) {
-    module.hot.accept('./reducers', () => {
-      store.replaceReducer(createReducer());
-    });
-  }
+  sagaMiddleware.run(rootSaga);
 
   return store;
 }

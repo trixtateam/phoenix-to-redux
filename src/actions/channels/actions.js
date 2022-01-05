@@ -61,19 +61,23 @@ export function leavePhoenixChannelEvent({ channelTopic, event }) {
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {String?} params.token - token for channel
- * @param {Boolean?} params.logPresence - determines if you presence should be tracked for the channel
+ * @param {Boolean?} params.logPresence - determines if your presence should be tracked for the channel
  */
 export function getPhoenixChannel({
   logPresence = false,
   channelTopic,
+  channelResponseEvent = null,
+  channelErrorResponseEvent = null,
   events = [],
-  token = null,
-  domainUrl = null,
+  token = '',
+  domainUrl = '',
 }) {
   return {
     type: PHOENIX_GET_CHANNEL,
     data: {
       channelTopic,
+      channelResponseEvent,
+      channelErrorResponseEvent,
       logPresence,
       channelToken: token,
       domainUrl,

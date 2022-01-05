@@ -175,6 +175,8 @@ export function connectPhoenixChannelPresence({ channel, dispatch }) {
 export function connectToPhoenixChannelForEvents({
   dispatch,
   channelTopic,
+  channelResponseEvent,
+  channelErrorResponseEvent,
   logPresence,
   events,
   token = null,
@@ -200,6 +202,7 @@ export function connectToPhoenixChannelForEvents({
           })
         );
         dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
+        dispatch(channelResponseEvent({data: response, channelTopic, channel}))
       })
       .receive(channelStatuses.CHANNEL_ERROR, (response) => {
         if (response && response.reason === 'unauthorized') {
@@ -207,6 +210,7 @@ export function connectToPhoenixChannelForEvents({
         }
         dispatch(phoenixChannelJoinError({ error: response, channelTopic, channel }));
         dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
+        dispatch(channelErrorResponseEvent({error: response, channelTopic, channel}))
       })
       .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
         dispatch(

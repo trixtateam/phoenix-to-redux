@@ -8,5 +8,7 @@ export * from './reducers';
 export * as reducers from './reducers';
 export * from './selectors';
 export * as selectors from './selectors';
+export * from './services/socket';
+export * from './services/helpers';
 export * from './utils/index';
 export * as utils from './utils/index';

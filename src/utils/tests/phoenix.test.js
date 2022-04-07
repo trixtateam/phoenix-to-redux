@@ -1,4 +1,4 @@
-import { formatSocketDomain } from '..';
+import { formatSocketDomain } from '../../services/helpers';
 
 describe('Phoenix util tests', () => {
   describe('formatSocketDomain', () => {

@@ -6,7 +6,7 @@ export const selectPhoenixChannels = createSelector(
   (phoenixState) => phoenixState.socket.channels
 );
 
-export const makeSelectPhoenixChannelByName = (name) =>
+export const selectPhoenixChannelByName = (name) =>
   createSelector(getPhoenix, (phoenixState) =>
     phoenixState.socket.channels
       ? phoenixState.socket.channels.find((channel) => channel.topic === name)

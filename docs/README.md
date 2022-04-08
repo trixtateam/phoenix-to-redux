@@ -15,10 +15,10 @@
 ## Install
 Install the package with npm
 
-```npm i @trixta/phoenix-to-redux```
+```npm i @trixtateam/phoenix-to-redux```
 or yarn - whichever you prefer
 
-```yarn add @trixta/phoenix-to-redux```
+```yarn add @trixtateam/phoenix-to-redux```
 
 ## 1. Setup Reducer
 ```javascript
@@ -27,7 +27,7 @@ or yarn - whichever you prefer
  */
 
 import { combineReducers } from 'redux';
-import { phoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixtateam/phoenix-to-redux';
 
 export default function createReducer() {
   const rootReducer = combineReducers({
@@ -41,7 +41,7 @@ export default function createReducer() {
 [See example to setup middleware](https://redux-toolkit.js.org/api/configureStore)
 ```javascript
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
-import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixtateam/phoenix-to-redux';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
 import createReducer from './reducers';
@@ -83,7 +83,7 @@ export default function configureStore(initialState = {}) {
 ## 3. Setup Socket Details
 ```javascript
 import { put } from 'redux-saga/effects';
-import {  connectPhoenix } from '@trixta/phoenix-to-redux';
+import {  connectPhoenix } from '@trixtateam/phoenix-to-redux';
 // update login details
 yield put(connectPhoenix({ domainUrl: 'localhost:4000', params: { token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'} }));
 ```
@@ -119,7 +119,7 @@ import {
   connectPhoenix
   getPhoenixChannel,
   pushToPhoenixChannel,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 import {
   REQUEST_LOGIN,
   REQUEST_LOGIN_FAILURE,
@@ -182,7 +182,7 @@ import {
 } from '../App/actions';
 import {
   connectPhoenix,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 import {
   PHOENIX_TOKEN,
   PHOENIX_SOCKET_DOMAIN,
@@ -226,7 +226,7 @@ import {
   updatePhoenixLoginDetails,
   getAnonymousPhoenixChannel,
   pushToPhoenixChannel,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 import {
   updateError,
   defaultLoad,
@@ -254,7 +254,7 @@ import {
 } from 'redux-saga/effects';
 import {
   channelActionTypes,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 
 
 
@@ -353,7 +353,7 @@ import {
 } from 'redux-saga/effects';
 import {
   socketActionTypes,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 
 
 /**
@@ -420,7 +420,7 @@ import {
   socketActionTypes,
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 
 export const initialState = {
   loading: false,
@@ -457,4 +457,5 @@ const appReducer = (state = initialState, action) =>
 export default appReducer;
 ```
 ## Communicate with Phoenix
-To communicate with phoenix socket, you can make use of the following dispatch [Methods](js/methods.md)
+To communicate with phoenix socket, you can make use of the following dispatch [Methods](js/methods.md) or [Serivce](js/service.md)
+

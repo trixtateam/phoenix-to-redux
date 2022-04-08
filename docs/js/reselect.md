@@ -11,21 +11,21 @@ offers a good starting point!
 ## Imports
 ```JS
 import {
-  selectPhoenixSocket,
+  getPhoenixSocket,
+getPhoenixSocketDomain,
+getPhoenixSocketDetails,
 selectPhoenixSocketDomain,
 selectPhoenixSocketDetails,
-makeSelectPhoenixSocketDomain,
-makeSelectPhoenixSocketDetails,
-makeSelectPhoenixSocket,
-makeSelectPhoenixSocketIsAuthenticated,
-makeSelectPhoenixSocketStatus,
-makeSelectPhoenixChannels,
- } from '@trixta/phoenix-to-redux'
+selectPhoenixSocket,
+selectPhoenixSocketIsAuthenticated,
+selectPhoenixSocketStatus,
+selectPhoenixChannels,
+ } from '@trixtateam/phoenix-to-redux'
 ```
 or
 ```JS
-import { selectors } from '@trixta/phoenix-to-redux'
-selectors.makeSelectPhoenixSocket
+import { selectors } from '@trixtateam/phoenix-to-redux'
+selectors.selectPhoenixSocket
 ```
 ## Usage
 `phoenix-to-redux` makes use of reselect to provide selectors for the `phoenix` reducer

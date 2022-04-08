@@ -28,8 +28,8 @@ import {
   getPhoenixChannel,
   connectPhoenix,
   pushToPhoenixChannel,
-  makeSelectPhoenixSocketStatus,
-} from '@trixta/phoenix-to-redux';
+  selectPhoenixSocketStatus,
+} from '@trixtateam/phoenix-to-redux';
 
 export class LoginPage extends React.Component {
 constructor(props) {
@@ -68,7 +68,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = createStructuredSelector({
-  socketStatus: makeSelectPhoenixSocketStatus(),
+  socketStatus: selectPhoenixSocketStatus(),
 });
 
 const withConnect = connect(
@@ -115,7 +115,7 @@ import {
   pushToPhoenixChannel,
   formatSocketDomain,
   getUrlParameter,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 import {
   REQUEST_LOGIN,
   REQUEST_LOGIN_FAILURE,
@@ -183,7 +183,7 @@ import {
 } from '../../config';
 import {
   connectPhoenix,
-} from '@trixta/phoenix-to-redux';
+} from '@trixtateam/phoenix-to-redux';
 
 /**
  *

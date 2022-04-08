@@ -7,38 +7,38 @@ and/or watch this [free video tutorial series](https://egghead.io/series/getting
 ## Imports
 ### reducers
 ```javascript
-import { phoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixtateam/phoenix-to-redux';
 ```
 or
 ```javascript
-import { reducers } from '@trixta/phoenix-to-redux';
+import { reducers } from '@trixtateam/phoenix-to-redux';
 reducers.phoenixReducer
 ```
 ### constants
 ```javascript
-import { constants } from '@trixta/phoenix-to-redux';
+import { constants } from '@trixtateam/phoenix-to-redux';
 ```
 or
 ```javascript
-import { channelStatuses, channelActionTypes, phoenixChannelStatuses, socketActionTypes, socketStatuses, } from '@trixta/phoenix-to-redux';
+import { channelStatuses, channelActionTypes, phoenixChannelStatuses, socketActionTypes, socketStatuses, } from '@trixtateam/phoenix-to-redux';
 ```
 ### actions
 ```javascript
-import { actions } from '@trixta/phoenix-to-redux';
+import { actions } from '@trixtateam/phoenix-to-redux';
 ```
 or
 ```javascript
-import { getPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix } from '@trixta/phoenix-to-redux';
+import { getPhoenixChannel, pushToPhoenixChannel, disconnectPhoenix, connectPhoenix } from '@trixtateam/phoenix-to-redux';
 ```
 
 ### middlewares
 ```javascript
-import { middlewares } from '@trixta/phoenix-to-redux';
+import { middlewares } from '@trixtateam/phoenix-to-redux';
 middlewares.createPhoenixChannelMiddleware
 ```
 or
 ```javascript
-import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixtateam/phoenix-to-redux';
 ```
 
 ## Usage
@@ -50,7 +50,7 @@ import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
 
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { phoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixtateam/phoenix-to-redux';
 import globalReducer from './containers/App/reducer';
 
 export default function createReducer() {
@@ -67,7 +67,7 @@ export default function createReducer() {
 ```javascript
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
-import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixtateam/phoenix-to-redux';
 import createReducer from './reducers';
 
 const phoenixChannelMiddleWare = createPhoenixChannelMiddleware();

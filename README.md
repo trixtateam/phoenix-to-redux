@@ -13,10 +13,10 @@
 ## Install
 Install the package with npm
 
-```npm i @trixta/phoenix-to-redux```
+```npm i @trixtateam/phoenix-to-redux```
 or yarn - whichever you prefer
 
-```yarn add @trixta/phoenix-to-redux```
+```yarn add @trixtateam/phoenix-to-redux```
 
 ## 1. Setup Reducer
 ```javascript
@@ -25,7 +25,7 @@ or yarn - whichever you prefer
  */
 
 import { combineReducers } from 'redux';
-import { phoenixReducer } from '@trixta/phoenix-to-redux';
+import { phoenixReducer } from '@trixtateam/phoenix-to-redux';
 
 export default function createReducer() {
   const rootReducer = combineReducers({
@@ -39,7 +39,7 @@ export default function createReducer() {
 [See example to setup middleware](https://redux-toolkit.js.org/api/configureStore)
 ```javascript
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
-import { createPhoenixChannelMiddleware } from '@trixta/phoenix-to-redux';
+import { createPhoenixChannelMiddleware } from '@trixtateam/phoenix-to-redux';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
 import createReducer from './reducers';
@@ -81,13 +81,13 @@ export default function configureStore(initialState = {}) {
 ## 3. Setup Socket Details
 ```javascript
 import { put } from 'redux-saga/effects';
-import {  connectPhoenix } from '@trixta/phoenix-to-redux';
+import {  connectPhoenix } from '@trixtateam/phoenix-to-redux';
 // update login details
 yield put(connectPhoenix({ domainUrl: 'localhost:4000', params : { token:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmF6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',agentId: 'john@doe.com'} }));
 ```
 
 ## Communicate with Phoenix
-To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md)
+To communicate with phoenix socket you can make use of the following dispatch [methods](docs/js/methods.md) or [service](docs/js/service.md)
 
 ## Documentation
 - [**The detailed Guide to `phoenix-to-redux`**](docs/README.md)

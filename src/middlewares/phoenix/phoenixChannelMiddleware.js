@@ -1,4 +1,3 @@
-import { disconnectPhoenix } from '../../actions';
 import {
   channelActionTypes,
   channelStatuses,
@@ -8,31 +7,33 @@ import {
   PHOENIX_LEAVE_CHANNEL,
   PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
+  socketActionTypes,
   socketStatuses,
 } from '../../constants';
 import {
-  selectPhoenixSocket,
   selectPhoenixSocketDetails,
   selectPhoenixSocketDomain,
 } from '../../selectors/socket/selectors';
-import {
-  formatSocketDomain,
-  getDomainKeyFromUrl,
-  hasValidSocket,
-  isEqual,
-  isNullOrEmpty,
-} from '../../utils';
+import { formatSocketDomain, getDomainKeyFromUrl } from '../../services/helpers';
+import { socketService } from '../../services/socket';
+import { isEqual, isNullOrEmpty } from '../../utils';
 import {
   connectToPhoenixChannelForEvents,
   endPhoenixChannelProgress,
-  findChannelByName,
-  leaveChannel,
   leaveEventsForPhoenixChannel,
-  setUpSocket,
   updatePhoenixChannelLoadingStatus,
 } from './actions';
-import { phoenixChannelPushError, phoenixChannelTimeOut } from './actions/channel';
-import { disconnectPhoenixSocket } from './actions/socket';
+import {
+  phoenixChannelLeave,
+  phoenixChannelPushError,
+  phoenixChannelTimeOut,
+} from './actions/channel';
+import {
+  closePhoenixSocket,
+  disconnectPhoenixSocket,
+  openPhoenixSocket,
+  phoenixSocketError,
+} from './actions/socket';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -41,56 +42,58 @@ import { disconnectPhoenixSocket } from './actions/socket';
 export const createPhoenixChannelMiddleware = () => (store) => (next) => (action) => {
   switch (action.type) {
     case PHOENIX_CONNECT_SOCKET: {
-      const { dispatch } = store;
+      const { dispatch, getState } = store;
+      const currentState = getState();
       const { domainUrl, params } = action.data;
-      const currentState = store.getState();
-      let socket = selectPhoenixSocket(currentState);
-      const socketDetails = selectPhoenixSocketDetails(currentState);
-      const activeDomainKey = selectPhoenixSocketDomain(currentState);
-      if (!isEqual(socketDetails, params)) {
-        const domainKey = getDomainKeyFromUrl({ domainUrl });
-        if (isEqual(domainKey, activeDomainKey)) {
-          socket.disconnect(null, 1000, 'Upgraded socket to authenticated session');
-          dispatch(
-            setUpSocket({
-              dispatch,
-              domain: domainUrl,
-              params,
-            })
-          );
+      const currentDomainKey = selectPhoenixSocketDomain(currentState);
+      const domainKey = getDomainKeyFromUrl(domainUrl);
+
+      // if socket exists
+      if (socketService.socket) {
+        if (
+          isEqual(socketService.socket.params(), params) ||
+          !isEqual(domainKey, currentDomainKey)
+        ) {
+          return store.getState();
         }
+        socketService.disconnect(null, 1000, 'Upgraded socket to authenticated session');
       }
 
-      socket = selectPhoenixSocket(store.getState());
-      if (!socket && domainUrl && params) {
-        dispatch(
-          setUpSocket({
-            dispatch,
-            domain: domainUrl,
-            params,
-          })
+      const domain = formatSocketDomain(domainUrl);
+      const socket = socketService.connect(domain, params);
+      if (socket) {
+        socket.onError((error) =>
+          dispatch(
+            phoenixSocketError({
+              domainKey,
+              error,
+              socketState: socket.connectionState(),
+            })
+          )
         );
+        socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
+        socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
+        dispatch({
+          type: socketActionTypes.SOCKET_CONNECT,
+          socket,
+          domainKey,
+        });
       }
       return store.getState();
     }
     case PHOENIX_DISCONNECT_SOCKET: {
-      const { dispatch } = store;
-      const currentState = store.getState();
-      const socket = selectPhoenixSocket(currentState);
+      const { dispatch, getState } = store;
+      const currentState = getState();
+      const { socket } = socketService;
       const domainKey = selectPhoenixSocketDomain(currentState);
-      if (socket && !isNullOrEmpty(socket) && socket.disconnect) {
-        socket.disconnect(null, 1000, 'Intentionally disconnecting socket');
+      if (socket) {
+        socketService.disconnect(null, 1000, 'Intentionally disconnecting socket');
         dispatch(disconnectPhoenixSocket({ domainKey, socket }));
       }
       return store.getState();
     }
     case PHOENIX_PUSH_TO_CHANNEL: {
       const { dispatch } = store;
-      const currentState = store.getState();
-      const socket = selectPhoenixSocket(currentState);
-      if (!hasValidSocket(socket)) {
-        dispatch(disconnectPhoenix());
-      }
       const {
         channelTopic,
         endProgressDelay,
@@ -104,128 +107,124 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         channelTimeOutEvent,
         loadingStatusKey,
       } = action.data;
-      const channel = findChannelByName({ channelTopic, socket });
+      const channel = socketService.findChannel(channelTopic);
+      if (!channel) return store.getState();
 
-      if (channel) {
-        if (!isNullOrEmpty(loadingStatusKey)) {
-          dispatch(updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }));
-        }
-        channel
-          .push(eventName, requestData, channelPushTimeOut)
-          .receive(channelStatuses.CHANNEL_OK, (data) => {
-            if (endProgressDelay) {
-              setTimeout(() => {
-                dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
-              }, endProgressDelay);
-            } else {
+      if (!isNullOrEmpty(loadingStatusKey)) {
+        dispatch(updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusKey }));
+      }
+      channel
+        .push(eventName, requestData, channelPushTimeOut)
+        .receive(channelStatuses.CHANNEL_OK, (data) => {
+          if (endProgressDelay) {
+            setTimeout(() => {
               dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
-            }
-            dispatch({ type: channelActionTypes.CHANNEL_PUSH, data });
-            if (channelResponseEvent) {
-              if (additionalData) {
-                dispatch({
-                  type: channelResponseEvent,
-                  channelTopic,
-                  data,
-                  additionalData,
-                  dispatch,
-                });
-              } else {
-                dispatch({ type: channelResponseEvent, data, dispatch });
-              }
-            }
-          })
-          .receive(channelStatuses.CHANNEL_ERROR, (error) => {
-            if (dispatchChannelError) {
-              dispatch(phoenixChannelPushError({ error, channelTopic, channel }));
-            }
+            }, endProgressDelay);
+          } else {
             dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
-            if (channelErrorResponseEvent) {
-              if (additionalData) {
-                dispatch({
-                  type: channelErrorResponseEvent,
-                  channelTopic,
-                  loadingStatusKey,
-                  additionalData,
-                  error,
-                  dispatch,
-                });
-              } else {
-                dispatch({
-                  type: channelErrorResponseEvent,
-                  channelTopic,
-                  loadingStatusKey,
-                  error,
-                  dispatch,
-                });
-              }
-            }
-          })
-          .receive(channelStatuses.CHANNEL_TIMEOUT, (error) => {
-            if (channelTimeOutEvent) {
+          }
+          dispatch({ type: channelActionTypes.CHANNEL_PUSH, data });
+          if (channelResponseEvent) {
+            if (additionalData) {
               dispatch({
-                type: channelTimeOutEvent,
+                type: channelResponseEvent,
+                channelTopic,
+                data,
+                additionalData,
+                dispatch,
+              });
+            } else {
+              dispatch({ type: channelResponseEvent, data, dispatch });
+            }
+          }
+        })
+        .receive(channelStatuses.CHANNEL_ERROR, (error) => {
+          if (dispatchChannelError) {
+            dispatch(phoenixChannelPushError({ error, channelTopic, channel }));
+          }
+          dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
+          if (channelErrorResponseEvent) {
+            if (additionalData) {
+              dispatch({
+                type: channelErrorResponseEvent,
                 channelTopic,
                 loadingStatusKey,
                 additionalData,
-                error: { message: 'Request time out', ...error },
+                error,
+                dispatch,
+              });
+            } else {
+              dispatch({
+                type: channelErrorResponseEvent,
+                channelTopic,
+                loadingStatusKey,
+                error,
+                dispatch,
               });
             }
-            dispatch(phoenixChannelTimeOut({ error, channelTopic, channel }));
-            dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
-          });
-      }
+          }
+        })
+        .receive(channelStatuses.CHANNEL_TIMEOUT, (error) => {
+          if (channelTimeOutEvent) {
+            dispatch({
+              type: channelTimeOutEvent,
+              channelTopic,
+              loadingStatusKey,
+              additionalData,
+              error: { message: 'Request time out', ...error },
+            });
+          }
+          dispatch(phoenixChannelTimeOut({ error, channelTopic, channel }));
+          dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey }));
+        });
+
       return store.getState();
     }
     case PHOENIX_LEAVE_CHANNEL: {
       const { dispatch } = store;
-      const currentState = store.getState();
-      const socket = selectPhoenixSocket(currentState);
-
       const { channelTopic } = action.data;
-      leaveChannel({ channelTopic, socket, dispatch });
+      const channel = socketService.leaveChannel(channelTopic);
+      if (channel) {
+        channel.receive(channelStatuses.CHANNEL_OK, () => {
+          dispatch(phoenixChannelLeave({ channel }));
+        });
+      }
       return store.getState();
     }
     case PHOENIX_LEAVE_CHANNEL_EVENTS: {
       const { dispatch } = store;
-      const currentState = store.getState();
-      const socket = selectPhoenixSocket(currentState);
-
       const { channelTopic, events } = action.data;
-      leaveEventsForPhoenixChannel({ channelTopic, socket, events, dispatch });
+
+      leaveEventsForPhoenixChannel({ channelTopic, events, dispatch });
       return store.getState();
     }
     case PHOENIX_GET_CHANNEL: {
-      const { dispatch } = store;
-      const currentState = store.getState();
-      let socket = selectPhoenixSocket(currentState);
+      const { dispatch, getState } = store;
+      const currentState = getState();
+      let { socket } = socketService;
       const socketDetails = selectPhoenixSocketDetails(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
       const { channelTopic, domainUrl, events, channelToken, logPresence } = action.data;
 
-      const domain = formatSocketDomain({ domainString: domainUrl || phoenixDomain });
+      const domain = formatSocketDomain(domainUrl || phoenixDomain);
       const loggedInDomain = `${domain}/websocket`;
+      const domainKey = getDomainKeyFromUrl(domain);
 
-      if (
-        !isEqual(
-          getDomainKeyFromUrl({ domainUrl: socketDomain }),
-          getDomainKeyFromUrl({ domainUrl: loggedInDomain })
-        )
-      ) {
+      if (!isEqual(getDomainKeyFromUrl(socketDomain), getDomainKeyFromUrl(loggedInDomain))) {
         socket = false;
       }
 
       const connectionState = socket && socket.connectionState();
       if (!socket || (connectionState === socketStatuses.CLOSED && socket.closeWasClean)) {
-        dispatch(
-          setUpSocket({
-            dispatch,
-            domain,
-            params: socketDetails,
-          })
-        );
-        socket = selectPhoenixSocket(store.getState());
+        socket = socketService.connect(domain, socketDetails);
+        if (socket) {
+          dispatch({
+            type: socketActionTypes.SOCKET_CONNECT,
+            socket,
+            domainKey,
+          });
+        }
       }
       dispatch(
         connectToPhoenixChannelForEvents({
@@ -234,7 +233,6 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           events,
           logPresence,
           token: channelToken,
-          socket,
         })
       );
 

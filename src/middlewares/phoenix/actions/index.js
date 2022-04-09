@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import { Channel, Presence, Socket } from 'phoenix';
+import { Channel, Presence } from 'phoenix';
 import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
   channelActionTypes,
@@ -8,15 +8,10 @@ import {
   phoenixChannelStatuses,
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
-  socketActionTypes,
 } from '../../../constants';
-import {
-  formatSocketDomain,
-  get,
-  getDomainKeyFromUrl,
-  hasValidSocket,
-  isNullOrEmpty,
-} from '../../../utils';
+import { hasValidSocket } from '../../../services/helpers';
+import { socketService } from '../../../services/socket';
+import { get, isNullOrEmpty } from '../../../utils';
 import {
   channelPresenceJoin,
   channelPresenceLeave,
@@ -25,40 +20,8 @@ import {
   phoenixChannelError,
   phoenixChannelJoin,
   phoenixChannelJoinError,
-  phoenixChannelLeave,
   phoenixChannelTimeOut,
 } from './channel';
-import { closePhoenixSocket, openPhoenixSocket, phoenixSocketError } from './socket';
-
-/**
- * Searches the connected socket channels by the channelTopic and returns the found channel
- * @param {Object} params - parameters
- * @param {string} params.channelTopic - Name of channel/Topic
- * @param {Object} params.socket - phoenix socket
- * @returns {T} Channel
- */
-export function findChannelByName({ channelTopic, socket }) {
-  if (!hasValidSocket(socket)) {
-    return null;
-  }
-  return socket.channels && socket.channels.find((channel) => channel.topic === channelTopic);
-}
-
-/**
- * Searches the connected socket channels by the channelTopic and removes the channel by un-subscribing for the given topic
- * @param {Object} params - parameters
- * @param {string} params.channelTopic - Name of channel/Topic
- * @param {Function} params.dispatch - function to dispatch to redux store
- * @param {Object} params.socket - phoenix socket
- */
-export function leaveChannel({ dispatch, channelTopic, socket }) {
-  const channel = findChannelByName({ channelTopic, socket });
-  if (channel) {
-    channel.leave().receive(channelStatuses.CHANNEL_OK, () => {
-      dispatch(phoenixChannelLeave({ channel }));
-    });
-  }
-}
 
 /**
  * When a response from the phoenix channel is received this action is dispatched to indicate
@@ -92,7 +55,7 @@ export function connectToPhoenixChannel({ socket, channelTopic, dispatch, token 
     return null;
   }
 
-  const channel = socket.channel(channelTopic, token ? { token } : null);
+  const channel = socketService.channel(channelTopic, token ? { token } : undefined);
   channel.onClose(() => {
     dispatch(phoenixChannelClose({ channel }));
   });
@@ -168,7 +131,7 @@ export function connectPhoenixChannelPresence({ channel, dispatch }) {
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
  * @param {String=} [params.token = null] params.token - token for channel
- * @param {Object} params.socket - phoenix socket
+ * @param {Object} params.socketService - socket service
  * @param {Boolean} params.logPresence - determines if you presence should be tracked for the channel
  * @returns {Object}
  */
@@ -178,9 +141,9 @@ export function connectToPhoenixChannelForEvents({
   logPresence,
   events,
   token = null,
-  socket,
 }) {
-  let channel = findChannelByName({ channelTopic, socket });
+  const { socket } = socketService;
+  let channel = socketService.findChannel(channelTopic);
   const presence = logPresence ? connectPhoenixChannelPresence({ dispatch, channel }) : false;
 
   if (!channel && !isNullOrEmpty(channelTopic)) {
@@ -248,8 +211,8 @@ export function connectToPhoenixChannelForEvents({
  * @param {Object} params.socket - phoenix socket
  * @returns {Object}
  */
-export function leaveEventsForPhoenixChannel({ channelTopic, dispatch, events, socket }) {
-  const channel = findChannelByName({ channelTopic, socket });
+export function leaveEventsForPhoenixChannel({ channelTopic, dispatch, events }) {
+  const channel = socketService.findChannel(channelTopic);
 
   if (channel && events) {
     events.forEach((eventName) => {
@@ -273,44 +236,4 @@ export function updatePhoenixChannelLoadingStatus({ channelTopic, loadingStatusK
     type: PHOENIX_CHANNEL_LOADING_STATUS,
     data: { channelTopic, loadingStatusKey },
   };
-}
-
-/**
- * Attempts to connect the socket and subscribes the socket events
- * to the corresponding phoenix reducer actions
- * @param {Object} parameters
- * @param {function} parameters.dispatch - store dispatch function
- * @param {string} parameters.params - socket params
- * @param {Object} parameters.domain - socket url to connect to
- */
-export function setUpSocket({ dispatch, domain, params }) {
-  const domainUrl = formatSocketDomain({ domainString: domain });
-  let socket = false;
-  if (!isNullOrEmpty(domainUrl)) {
-    socket = new Socket(domainUrl, { params });
-    socket.connect();
-    socket.onError((error) => {
-      dispatch(
-        phoenixSocketError({
-          domainKey: getDomainKeyFromUrl({ domainUrl }),
-          error,
-          socketState: socket.connectionState(),
-        })
-      );
-    });
-    socket.onOpen(() => {
-      dispatch(openPhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
-    });
-    socket.onClose(() => {
-      dispatch(closePhoenixSocket({ socket, domainKey: getDomainKeyFromUrl({ domainUrl }) }));
-    });
-
-    return {
-      type: socketActionTypes.SOCKET_CONNECT,
-      socket,
-      domainKey: getDomainKeyFromUrl({ domainUrl }),
-    };
-  }
-
-  return disconnectPhoenix();
 }

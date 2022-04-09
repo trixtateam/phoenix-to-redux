@@ -1,12 +1,12 @@
 {
-  "name": "@trixta/phoenix-to-redux",
-  "version": "3.5.1-beta.0",
+  "name": "@trixtateam/phoenix-to-redux",
+  "version": "4.0.5-beta.0",
   "publishConfig": {
     "access": "public"
   },
   "description": "Middleware for react-redux to map Redux Actions and Phoenix Channel Message Events",
-  "main": "lib/bundle.cjs.js",
-  "module": "lib/bundle.esm.js",
+  "main": "dist/@trixtateam/phoenix-to-redux.cjs.js",
+  "module": "dist/@trixtateam/phoenix-to-redux.esm.js",
   "files": [
     "lib"
   ],

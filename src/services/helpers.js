@@ -1,19 +1,28 @@
 import { SOCKET_PROTOCOL_SECURE, SOCKET_PROTOCOL_UN_SECURE, SOCKET_URI } from '../constants';
 
 /**
+ * Cleans up domain url removing socket information and returning the
+ * name portion
+ * @param {String} domainUrl - url of socket domain
+ */
+export function getDomainKeyFromUrl(domainUrl) {
+  return (
+    domainUrl &&
+    domainUrl
+      .replace(/(wss?:\/\/|wss?:)/g, '')
+      .replace('/socket', '')
+      .replace('/websocket', '')
+  );
+}
+
+/**
  * Based on the given domain parameter will format and return the correct space domain format
- * @param{string} domainString - domain string
+ * @param domain - domain string
  * @returns string
  */
-export function formatSocketDomain({ domainString }) {
-  let domainUrl = domainString;
-  if (typeof domainUrl !== 'string') {
-    return '';
-  }
-
-  if (!domainUrl) {
-    return '';
-  }
+export function formatSocketDomain(domain) {
+  if (!domain || typeof domain !== 'string') return '';
+  let domainUrl = domain;
   // connection should end in '/socket'
   if (!domainUrl.includes(`/${SOCKET_URI}`)) {
     domainUrl = `${domainUrl}/${SOCKET_URI}`;
@@ -40,15 +49,9 @@ export function formatSocketDomain({ domainString }) {
  * @returns {boolean}
  */
 export function hasValidSocket(socket) {
-  if (socket === false) {
-    return false;
-  }
-  if (socket === null) {
-    return false;
-  }
+  if (!socket) return false;
   if (typeof socket === 'undefined' || socket === 'undefined') {
     return false;
   }
-
   return true;
 }

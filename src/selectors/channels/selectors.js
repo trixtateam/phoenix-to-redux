@@ -3,12 +3,8 @@ import { getPhoenix } from '../socket/selectors';
 
 export const selectPhoenixChannels = createSelector(
   getPhoenix,
-  (phoenixState) => phoenixState.socket.channels
+  (phoenixState) => phoenixState.channels
 );
 
-export const selectPhoenixChannelByName = (name) =>
-  createSelector(getPhoenix, (phoenixState) =>
-    phoenixState.socket.channels
-      ? phoenixState.socket.channels.find((channel) => channel.topic === name)
-      : undefined
-  );
+export const makeSelectPhoenixChannelByName = (name) =>
+  createSelector(selectPhoenixChannels, (channels) => (channels ? channels[name] : undefined));

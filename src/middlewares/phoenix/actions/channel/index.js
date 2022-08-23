@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import { Channel, Presence } from 'phoenix';
+import { Channel } from 'phoenix';
 import { channelActionTypes } from '../../../../constants';
 
 /**

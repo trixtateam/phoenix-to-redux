@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/trixtateam/phoenix-to-redux/compare/v1.0.0...v1.0.1) (2022-08-23)
+
+
+### Bug Fixes
+
+* include events on join of channel ([e659b56](https://github.com/trixtateam/phoenix-to-redux/commit/e659b56b1633cd01c0aaca836fcdaa33b60aa94b))
+
 # 1.0.0 (2022-08-23)
 
 

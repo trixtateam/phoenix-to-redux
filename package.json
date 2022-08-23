@@ -1,6 +1,6 @@
 {
   "name": "@trixtateam/phoenix-to-redux",
-  "version": "4.0.7-beta.0",
+  "version": "1.0.0",
   "publishConfig": {
     "access": "public"
   },

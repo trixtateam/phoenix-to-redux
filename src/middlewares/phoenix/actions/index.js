@@ -182,6 +182,17 @@ export function connectToPhoenixChannelForEvents({
         dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
       });
 
+    if (Array.isArray(events)) {
+      events.forEach(({ eventName, eventActionType }) => {
+        const bindings = get(channel, 'bindings', []);
+        if (!bindings.find(({ event }) => event === eventName)) {
+          channel.on(eventName, (data) => {
+            dispatch({ type: eventActionType, data, eventName, channelTopic });
+          });
+        }
+      });
+    }
+
     return {
       type: channelActionTypes.CHANNEL_UPDATED,
       presence,

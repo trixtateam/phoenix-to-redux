@@ -1,12 +1,13 @@
-const fs = require('fs');
 const path = require('path');
-
-const prettierOptions = JSON.parse(fs.readFileSync(path.resolve(__dirname, '.prettierrc'), 'utf8'));
+const prettierOptions = require(path.resolve(__dirname, 'prettier.config.js'));
 
 module.exports = {
-  parser: 'babel-eslint',
-  extends: ['airbnb', 'prettier'],
-  plugins: ['prettier'],
+  parser: '@babel/eslint-parser',
+  extends: [
+    'plugin:jest/recommended',
+    'prettier',
+  ],
+  plugins: ['prettier', 'jest','@babel'],
   env: {
     jest: true,
     browser: true,
@@ -18,7 +19,6 @@ module.exports = {
     sourceType: 'module',
     ecmaFeatures: {
       experimentalObjectRestSpread: true,
-      jsx: true,
     },
   },
   rules: {
@@ -30,7 +30,7 @@ module.exports = {
     'import/no-dynamic-require': 0,
     'import/no-extraneous-dependencies': 0,
     'import/no-named-as-default': 0,
-    'import/no-unresolved': 2,
+    'import/no-unresolved': 0,
     'import/no-webpack-loader-syntax': 0,
     'import/prefer-default-export': 0,
     indent: [
@@ -49,4 +49,12 @@ module.exports = {
     'prefer-template': 2,
     'require-yield': 0,
   },
+  overrides: [
+    {
+      files: ['src/**/*.js?(x)'],
+      rules: {
+        'prettier/prettier': ['warn', prettierOptions],
+      }
+    }
+  ]
 };

@@ -1,0 +1,42 @@
+# <type>(<scope>): <description>
+
+# [optional body]
+
+# [optional footer(s)]
+
+# --- COMMIT END ---
+
+# Type:
+#    feat       (new feature)
+#    fix        (bug fix)
+#    refactor   (refactoring production code, eg. renaming a variable)
+#    perf       (performance improvements)
+#    style      (formatting, missing semi colons, etc; no production code change)
+#    docs       (changes to documentation)
+#    test       (adding or refactoring tests; no production code change)
+#    chore      (updating grunt tasks etc; no production code change)
+#    deps       (upgrading or downgrading dependencies)
+#    ci         (changing ci workflows)
+#    revert     (reverting code or commit)
+#    build      (bulding project)
+
+# Scope: commit scope
+
+# Description: commit description up to 50 chars
+
+# Body:
+#   Explain what was done or fixed, why this change is being made.
+#   Provide links or keys to any relevant issues (#WR-23), tickets, articles or other resources
+
+# Footer:
+#   The footer is optional lines that mention consequences which stems from the change -
+#   such as announcing a breaking change, linking closed issues, mentioning contributors and so on.
+
+# Example:
+#   fix(core): removed deprecated apis
+#
+#   These apis have been deprecated in v3, so they should stick around till v5,
+#   but since they are defunct we are removing them early so that they don't take up payload size.
+#
+#   #WR-53
+#   BREAKING CHANGE: this fix changes the core functionality

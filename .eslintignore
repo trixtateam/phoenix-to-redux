@@ -1,2 +1,14 @@
 # Created by .ignore support plugin (hsz.mobi)
+node_modules/
+static/
+dist/
+build/
 lib/
+flow-typed/
+*.d.ts
+.eslintrc.js
+__stories__/
+stories/
+serviceWorker.ts
+*.config.js
+scripts/

@@ -45,6 +45,7 @@
     "major": "npm --no-git-tag-version version premajor --preid=beta",
     "patch": "npm --no-git-tag-version version prepatch --preid=beta",
     "minor": "npm --no-git-tag-version version preminor --preid=beta",
+    "release": "semantic-release",
     "test:clean": "rimraf ./coverage",
     "test": "jest",
     "test:watch": "jest --watch",

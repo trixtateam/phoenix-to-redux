@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/trixtateam/phoenix-to-redux/compare/v1.0.1...v1.0.2) (2022-12-02)
+
+
+### Bug Fixes
+
+* socket connect callback race conditions ([454c1fc](https://github.com/trixtateam/phoenix-to-redux/commit/454c1fc9d6712b36ea86e7958b05bac738dd3edc))
+
 ## [1.0.1](https://github.com/trixtateam/phoenix-to-redux/compare/v1.0.0...v1.0.1) (2022-08-23)
 
 

@@ -12,7 +12,9 @@ To communicate with phoenix socket, you can make use of the socket service
 import {
   socketService,
 } from '@trixtateam/phoenix-to-redux';
-socketService.initialize('localhost:3000')
-socketService.connect()
+const socket = socketService.initialize('localhost:3000')
+socket.onOpen(function(){ console.info("the socket was opened") });
+socket.onError(function(error){ alert("An error occurred") });
+socket.connect();
 
 ```

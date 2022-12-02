@@ -59,7 +59,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       }
 
       const domain = formatSocketDomain(domainUrl);
-      const socket = socketService.connect(domain, params);
+      const socket = socketService.initialize(domain, params);
       if (socket) {
         socket.onError((error) =>
           dispatch(
@@ -72,6 +72,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         );
         socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
         socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
+        socket.connect();
         dispatch({
           type: socketActionTypes.SOCKET_CONNECT,
           socket,

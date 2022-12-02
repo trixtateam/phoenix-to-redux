@@ -6,13 +6,17 @@ export const socketService = {
   socket: undefined,
   domain: undefined,
 
-  connect: function connect(domain, params) {
+  initialize: function initialize(domain, params) {
     if (!domain || !domain.length || !params) return undefined;
     if (this.socket) this.disconnect();
     this.domain = domain;
     this.socket = new Socket(domain, { params });
-    this.socket.connect();
     return this.socket;
+  },
+
+  connect: function connect() {
+    if (!this.socket) return;
+    this.socket.connect();
   },
 
   disconnect: function disconnect(...props) {

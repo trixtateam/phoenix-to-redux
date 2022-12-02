@@ -12,7 +12,7 @@ To communicate with phoenix socket, you can make use of the socket service
 import {
   socketService,
 } from '@trixtateam/phoenix-to-redux';
-
-socketService.connect('localhost:3000')
+socketService.initialize('localhost:3000')
+socketService.connect()
 
 ```

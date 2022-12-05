@@ -26,7 +26,13 @@ import {
   phoenixChannelPushError,
   phoenixChannelTimeOut,
 } from './actions/channel';
-import { disconnectPhoenixSocket, connectPhoenixSocket, openPhoenixSocket } from './actions/socket';
+import {
+  disconnectPhoenixSocket,
+  connectPhoenixSocket,
+  closePhoenixSocket,
+  openPhoenixSocket,
+  phoenixSocketError,
+} from './actions/socket';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux

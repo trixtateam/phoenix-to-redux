@@ -131,6 +131,7 @@ export function connectPhoenixChannelPresence({ channel, dispatch }) {
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
  * @param {String} params.responseActionType - on connection of the channel action type to dispatch to
  * @param {String=} [params.token = null] params.token - token for channel
+ * @param {?object} params.additionalData - this optional object will be available as additionalData on CHANNEL_JOIN event received from the channel for you to use on later note
  * @param {Object} params.socketService - socket service
  * @param {Boolean} params.logPresence - determines if you presence should be tracked for the channel
  * @returns {Object}
@@ -141,6 +142,7 @@ export function connectToPhoenixChannelForEvents({
   logPresence,
   events,
   token = null,
+  additionalData = null,
 }) {
   const { socket } = socketService;
   let channel = socketService.findChannel(channelTopic);
@@ -160,6 +162,7 @@ export function connectToPhoenixChannelForEvents({
           phoenixChannelJoin({
             response,
             channel,
+            additionalData,
           })
         );
         dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
@@ -168,13 +171,16 @@ export function connectToPhoenixChannelForEvents({
         if (response && response.reason === 'unauthorized') {
           dispatch(leavePhoenixChannel({ channelTopic }));
         }
-        dispatch(phoenixChannelJoinError({ error: response, channelTopic, channel }));
+        dispatch(
+          phoenixChannelJoinError({ error: response, channelTopic, additionalData, channel })
+        );
         dispatch(endPhoenixChannelProgress({ channelTopic, loadingStatusKey: channelTopic }));
       })
       .receive(channelStatuses.CHANNEL_TIMEOUT, (response) => {
         dispatch(
           phoenixChannelTimeOut({
             channelTopic,
+            additionalData,
             error: response,
             channel,
           })

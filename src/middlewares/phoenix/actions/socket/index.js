@@ -32,6 +32,21 @@ export function openPhoenixSocket({ socket, domainKey }) {
 }
 
 /**
+ * Should the socket attempt to connect, this action is dispatched to the
+ * phoenix reducer
+ * @param {Object} params - parameters
+ * @param {string} params.domainKey - domain for socket
+ * @param {Object} params.socket = socket being opened
+ */
+export function connectPhoenixSocket({ socket, domainKey }) {
+  return {
+    type: socketActionTypes.SOCKET_CONNECT,
+    socket,
+    domainKey,
+  };
+}
+
+/**
  * Should the socket attempt to close, this action is dispatched to the
  * phoenix reducer
  * @param {Object} params - parameters

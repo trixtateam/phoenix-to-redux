@@ -7,7 +7,6 @@ import {
   PHOENIX_LEAVE_CHANNEL,
   PHOENIX_LEAVE_CHANNEL_EVENTS,
   PHOENIX_PUSH_TO_CHANNEL,
-  socketActionTypes,
   socketStatuses,
 } from '../../constants';
 import {
@@ -20,7 +19,6 @@ import { isEqual, isNullOrEmpty } from '../../utils';
 import {
   connectToPhoenixChannelForEvents,
   endPhoenixChannelProgress,
-  leaveEventsForPhoenixChannel,
   updatePhoenixChannelLoadingStatus,
 } from './actions';
 import {
@@ -28,12 +26,7 @@ import {
   phoenixChannelPushError,
   phoenixChannelTimeOut,
 } from './actions/channel';
-import {
-  closePhoenixSocket,
-  disconnectPhoenixSocket,
-  openPhoenixSocket,
-  phoenixSocketError,
-} from './actions/socket';
+import { disconnectPhoenixSocket, connectPhoenixSocket, openPhoenixSocket } from './actions/socket';
 
 /**
  * Redux Middleware to integrate channel and socket messages from phoenix to redux
@@ -73,12 +66,9 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
         socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
         socket.connect();
-        dispatch({
-          type: socketActionTypes.SOCKET_CONNECT,
-          socket,
-          domainKey,
-        });
+        dispatch(connectPhoenixSocket({ domainKey, socket }));
       }
+
       return store.getState();
     }
     case PHOENIX_DISCONNECT_SOCKET: {
@@ -134,7 +124,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
                 dispatch,
               });
             } else {
-              dispatch({ type: channelResponseEvent, data, dispatch });
+              dispatch({ type: channelResponseEvent, channelTopic, data, dispatch });
             }
           }
         })
@@ -205,7 +195,8 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const socketDetails = selectPhoenixSocketDetails(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
-      const { channelTopic, domainUrl, events, channelToken, logPresence } = action.data;
+      const { channelTopic, domainUrl, events, channelToken, logPresence, additionalData } =
+        action.data;
 
       const domain = formatSocketDomain(domainUrl || phoenixDomain);
       const loggedInDomain = `${domain}/websocket`;
@@ -217,19 +208,28 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
 
       const connectionState = socket && socket.connectionState();
       if (!socket || (connectionState === socketStatuses.CLOSED && socket.closeWasClean)) {
-        socket = socketService.connect(domain, socketDetails);
+        socket = socketService.initialize(domain, socketDetails);
         if (socket) {
-          dispatch({
-            type: socketActionTypes.SOCKET_CONNECT,
-            socket,
-            domainKey,
-          });
+          socket.onError((error) =>
+            dispatch(
+              phoenixSocketError({
+                domainKey,
+                error,
+                socketState: socket.connectionState(),
+              })
+            )
+          );
+          socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
+          socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
+          socket.connect();
+          dispatch(connectPhoenixSocket({ domainKey, socket }));
         }
       }
       dispatch(
         connectToPhoenixChannelForEvents({
           dispatch,
           channelTopic,
+          additionalData,
           events,
           logPresence,
           token: channelToken,

@@ -6,12 +6,14 @@ import { channelActionTypes } from '../../../../constants';
  * Response after joining a phoenix channel
  * @param {Object} params - parameters
  * @param {Object} params.response - response from joining channel
+ * @param {Object?} params.additionalData - addtionalData passed when joining a channel
  * @param {Channel} params.channel - phoenix channel
  */
-export function phoenixChannelJoin({ response, channel }) {
+export function phoenixChannelJoin({ response, channel, additionalData = null }) {
   return {
     type: channelActionTypes.CHANNEL_JOIN,
     response,
+    additionalData,
     channel,
   };
 }
@@ -124,13 +126,15 @@ export function phoenixChannelError({ channelTopic, channel }) {
  * Response after joining a phoenix channel with an error
  * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
+ * @param {Object?} params.additionalData - addtionalData passed when joining a channel
  * @param {string} params.channelTopic - phoenix channel topic
  * @param {Channel} params.channel - phoenix channel
  */
-export function phoenixChannelJoinError({ error, channelTopic, channel }) {
+export function phoenixChannelJoinError({ error, channelTopic, channel, additionalData = null }) {
   return {
     type: channelActionTypes.CHANNEL_JOIN_ERROR,
     channelTopic,
+    additionalData,
     channel,
     error,
   };
@@ -140,13 +144,15 @@ export function phoenixChannelJoinError({ error, channelTopic, channel }) {
  * Response after joining a phoenix channel with a timeout
  * @param {Object} params - parameters
  * @param {string} params.error - phoenix channel error
+ * @param {Object?} params.additionalData - addtionalData passed when joining a channel
  * @param {string} params.channelTopic -  Name of channel/Topic
  * @param {Channel} params.channel - phoenix channel
  */
-export function phoenixChannelTimeOut({ error, channelTopic, channel }) {
+export function phoenixChannelTimeOut({ error, channelTopic, channel, additionalData = null }) {
   return {
     type: channelActionTypes.CHANNEL_TIMEOUT,
     channelTopic,
+    additionalData,
     channel,
     error,
   };

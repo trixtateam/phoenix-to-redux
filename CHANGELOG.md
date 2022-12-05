@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/trixtateam/phoenix-to-redux/compare/v1.0.2...v1.1.0) (2022-12-05)
+
+
+### Features
+
+* pass additionalData for joining a channel ([71ec5ed](https://github.com/trixtateam/phoenix-to-redux/commit/71ec5ed3364508f4866a520730ee2bc5c3bffaeb))
+
 ## [1.0.2](https://github.com/trixtateam/phoenix-to-redux/compare/v1.0.1...v1.0.2) (2022-12-02)
 
 

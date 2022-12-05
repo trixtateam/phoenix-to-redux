@@ -14,11 +14,6 @@ export const socketService = {
     return this.socket;
   },
 
-  connect: function connect() {
-    if (!this.socket) return;
-    this.socket.connect();
-  },
-
   disconnect: function disconnect(...props) {
     if (!this.socket) return;
     this.socket.disconnect(...props);

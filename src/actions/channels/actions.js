@@ -58,6 +58,7 @@ export function leavePhoenixChannelEvent({ channelTopic, event }) {
  * @param {?Object[]}  params.events - [{eventName, eventActionType}, ...] event map to listen to on channel
  * @param {string} events[].eventName - The name of event to listen on channel.
  * @param {string} events[].eventActionType - The name of action to dispatch to reducer for the corresponding eventName.
+ * @param {?object} params.additionalData - this optional object will be available as additionalData on CHANNEL_JOIN event received from the channel for you to use on later note
  * @param {string?} params.domainUrl - url for socket to connect to, by default will use PHOENIX_SOCKET_DOMAIN storage key
  * @param {string} params.channelTopic - Name of channel/Topic
  * @param {String?} params.token - token for channel
@@ -67,6 +68,7 @@ export function getPhoenixChannel({
   logPresence = false,
   channelTopic,
   events = [],
+  additionalData = null,
   token = null,
   domainUrl = null,
 }) {
@@ -75,6 +77,7 @@ export function getPhoenixChannel({
     data: {
       channelTopic,
       logPresence,
+      additionalData,
       channelToken: token,
       domainUrl,
       events,
@@ -92,7 +95,7 @@ export function getPhoenixChannel({
  * @param {?string} params.channelResponseEvent - name of action to dispatch to reducer on response from pushing to channel
  * @param {?string} params.channelErrorResponseEvent -  name of action to dispatch to reducer on  error from pushing to channel
  * @param {object} params.requestData - data payload to push on the channel
- * @param {?object} params.additionalData - this object will be available as additionalData on the response data object received from the channel for you to use on later note
+ * @param {?object} params.additionalData - this optional object will be available as additionalData on the response data object received from the channel for you to use on later note
  * @param {?boolean} params.dispatchChannelError - false by default, determines if should an on channel error occur dispatch PHOENIX_CHANNEL_ERROR to the reducer
  * @param {?number} params.channelPushTimeOut - timeout in milliseconds for pushing to the channel, default is 1500
  * @param {?boolean || string} params.channelTimeOutEvent - name of action to dispatch to reducer on timeout from pushing to channel

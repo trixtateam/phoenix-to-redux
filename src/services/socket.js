@@ -6,11 +6,11 @@ export const socketService = {
   socket: undefined,
   domain: undefined,
 
-  initialize: function initialize(domain, params) {
+  initialize: function initialize(domain, params, options) {
     if (!domain || !domain.length || !params) return undefined;
     if (this.socket) this.disconnect();
     this.domain = domain;
-    this.socket = new Socket(domain, { params });
+    this.socket = new Socket(domain, { params, ...options });
     return this.socket;
   },
 

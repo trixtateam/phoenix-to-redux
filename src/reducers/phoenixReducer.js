@@ -11,6 +11,7 @@ export const initialState = {
   socket: false,
   domain: false,
   details: false,
+  options: false,
   channelPresence: {},
   channels: {},
   socketStatus: socketStatuses.CLOSED,
@@ -51,6 +52,7 @@ export const phoenixReducer = (state = initialState, action) =>
         draft.socketStatus = socketStatuses.CONNECTING;
         draft.channels = {};
         draft.details = action.socket.params();
+        draft.options = action.socket.options;
         draft.domain = getDomainKeyFromUrl(action.socket.endPoint);
         draft.socket = action.socket;
         break;

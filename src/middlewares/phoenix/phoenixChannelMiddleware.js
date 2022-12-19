@@ -12,6 +12,7 @@ import {
 import {
   selectPhoenixSocketDetails,
   selectPhoenixSocketDomain,
+  selectPhoenixSocketOptions,
 } from '../../selectors/socket/selectors';
 import { formatSocketDomain, getDomainKeyFromUrl } from '../../services/helpers';
 import { socketService } from '../../services/socket';
@@ -43,7 +44,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
     case PHOENIX_CONNECT_SOCKET: {
       const { dispatch, getState } = store;
       const currentState = getState();
-      const { domainUrl, params } = action.data;
+      const { domainUrl, params, options } = action.data;
       const currentDomainKey = selectPhoenixSocketDomain(currentState);
       const domainKey = getDomainKeyFromUrl(domainUrl);
 
@@ -58,7 +59,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       }
 
       const domain = formatSocketDomain(domainUrl);
-      const socket = socketService.initialize(domain, params);
+      const socket = socketService.initialize(domain, params, options);
       if (socket) {
         socket.onError((error) =>
           dispatch(
@@ -72,7 +73,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
         socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
         socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
         socket.connect();
-        dispatch(connectPhoenixSocket({ domainKey, socket }));
+        dispatch(connectPhoenixSocket({ domainKey, socket, options }));
       }
 
       return store.getState();
@@ -199,6 +200,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
       const currentState = getState();
       let { socket } = socketService;
       const socketDetails = selectPhoenixSocketDetails(currentState);
+      const socketOptions = selectPhoenixSocketOptions(currentState);
       const phoenixDomain = selectPhoenixSocketDomain(currentState);
       const socketDomain = socket ? socket.endPoint : '';
       const { channelTopic, domainUrl, events, channelToken, logPresence, additionalData } =
@@ -214,7 +216,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
 
       const connectionState = socket && socket.connectionState();
       if (!socket || (connectionState === socketStatuses.CLOSED && socket.closeWasClean)) {
-        socket = socketService.initialize(domain, socketDetails);
+        socket = socketService.initialize(domain, socketDetails, socketOptions);
         if (socket) {
           socket.onError((error) =>
             dispatch(
@@ -228,7 +230,7 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
           socket.onOpen(() => dispatch(openPhoenixSocket({ socket, domainKey })));
           socket.onClose(() => dispatch(closePhoenixSocket({ socket, domainKey })));
           socket.connect();
-          dispatch(connectPhoenixSocket({ domainKey, socket }));
+          dispatch(connectPhoenixSocket({ domainKey, socket, options: socketOptions }));
         }
       }
       dispatch(

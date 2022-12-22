@@ -20,6 +20,7 @@ import {
   connectToPhoenixChannelForEvents,
   endPhoenixChannelProgress,
   updatePhoenixChannelLoadingStatus,
+  leaveEventsForPhoenixChannel,
 } from './actions';
 import {
   phoenixChannelLeave,

@@ -11,7 +11,7 @@ jobs:
   publish-release:
     name: Running release
     if:
-      "contains(toJSON(github.event.commits.*.message), 'chore(release):@trixtateam/phoenix-to-redux')"
+      "contains(toJSON(github.event.commits.*.message), 'chore(release):')"
     runs-on: ubuntu-latest
     strategy:
       matrix:

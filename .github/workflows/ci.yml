@@ -19,48 +19,44 @@ jobs:
       CI: true
 
     steps:
-      - uses: actions/checkout@v2
+      - name: 🛒 Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
 
-      - name: Get Yarn cache directory
+      - name: 💿 Setup Nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: 💾 Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache node modules 💾
-        uses: actions/cache@v2
-        id: cache-modules
+      - name: 💾 Cache
+        uses: actions/cache@v3
+        id: yarn-cache
         with:
           path: |
+            **/node_modules
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          # **/node_modules
-          key:
-            ${{ runner.os }}-yarn-${{ matrix.node-version }}-${{
-            hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ matrix.node-version }}-
+            ${{ runner.os }}-yarn
 
-      - name: Configure npm 🔑
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=$GH_TOKEN" > .npmrc
-          echo '@trixtateam:registry=https://npm.pkg.github.com' >> .npmrc
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Increase watchers
-        run:
-          echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
-          && sudo sysctl -p
-
-      - name: Install 💿
+      - name: 🧩 Install dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install --prefer-offline --frozen-lockfile
 
-      - name: Build Library 🔨
-        run: yarn build
-
-      - name: Lint ✏️
-        run: yarn lint
-
-      - name: Yarn Lock Changes 📋
+      - name: 📋 Yarn Lock Changes
         uses: Simek/yarn-lock-changes@main
         with:
           updateComment: 'true'
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔨 Build Library
+        run: yarn build
+
+      - name: ✏️ Lint
+        run: yarn lint

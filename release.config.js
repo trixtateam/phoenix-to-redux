@@ -29,7 +29,7 @@ module.exports = {
     ],
     '@semantic-release/release-notes-generator',
     '@semantic-release/changelog',
-    ['@semantic-release/npm', { npmPublish: true }],
+    ['@semantic-release/npm', { npmPublish: false }],
     [
       '@semantic-release/git',
       {

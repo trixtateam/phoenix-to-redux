@@ -51,7 +51,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls",
-    "test:staged": "jest --findRelatedTests"
+    "test:staged": "jest --findRelatedTests",
+    "prepublishOnly": "yarn run build",
+    "publish:lib": "npm publish --access public || true"
   },
   "lint-staged": {
     "*.{js}": [

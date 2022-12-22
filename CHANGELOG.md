@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/trixtateam/phoenix-to-redux/compare/v1.1.1...v1.1.2) (2022-12-22)
+
+
+### Bug Fixes
+
+* missing import leaveEventsForPhoenixChannel ([2ee284d](https://github.com/trixtateam/phoenix-to-redux/commit/2ee284d3852e56682883cb2fe1f471a0333d9edf))
+
 ## [1.1.1](https://github.com/trixtateam/phoenix-to-redux/compare/v1.1.0...v1.1.1) (2022-12-05)
 
 

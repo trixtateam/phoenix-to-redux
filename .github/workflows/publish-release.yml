@@ -11,8 +11,7 @@ jobs:
   publish-release:
     name: Running release
     if:
-      "contains(toJSON(github.event.commits.*.message), 'chore(release):
-      @trixtateam/phoenix-to-redux')"
+      "contains(toJSON(github.event.commits.*.message), 'chore(release):@trixtateam/phoenix-to-redux')"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,7 +43,7 @@ jobs:
       - name: 🚀 Publish package to NPM Registry
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          node-version: '14.x'
           registry-url: 'https://registry.npmjs.org'
           # Defaults to the user or organization that owns the workflow file
           scope: '@trixtateam'

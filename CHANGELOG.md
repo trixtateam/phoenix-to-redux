@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/trixtateam/phoenix-to-redux/compare/v1.1.2...v1.2.0) (2022-12-22)
+
+
+### Features
+
+* ability to pass socket options ([7b5a7b2](https://github.com/trixtateam/phoenix-to-redux/commit/7b5a7b24436d064f7f372d320960b64776f75db0))
+
 ## [1.1.2](https://github.com/trixtateam/phoenix-to-redux/compare/v1.1.1...v1.1.2) (2022-12-22)
 
 

@@ -6,6 +6,7 @@ export const getPhoenix = (state) => state.phoenix || initialState;
 export const getPhoenixSocket = (state) => state.phoenix.socket;
 export const getPhoenixSocketDomain = (state) => state.phoenix.domain;
 export const getPhoenixSocketDetails = (state) => state.phoenix.details;
+export const getPhoenixSocketOptions = (state) => state.phoenix.options;
 export const getPhoenixSocketAuthenticated = (state) =>
   state.phoenix.details && !isNullOrEmpty(state.phoenix.details.token);
 export const getPhoenixChannelPresence = (state, channelTopic) =>
@@ -22,6 +23,12 @@ export const selectPhoenixSocketDomain = () =>
  */
 export const selectPhoenixSocketDetails = () =>
   createSelector(getPhoenixSocketDetails, (details) => details);
+
+/**
+ * Selects the current options for the phoenix socket
+ */
+export const selectPhoenixSocketOptions = () =>
+  createSelector(getPhoenixSocketOptions, (options) => options);
 
 /**
  * Returns true or false if the phoenix socket has a token

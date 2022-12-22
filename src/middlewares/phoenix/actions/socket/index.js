@@ -37,11 +37,13 @@ export function openPhoenixSocket({ socket, domainKey }) {
  * @param {Object} params - parameters
  * @param {string} params.domainKey - domain for socket
  * @param {Object} params.socket = socket being opened
+ * @param {Object=} [params.options = {}] parameters.options - socket options
  */
-export function connectPhoenixSocket({ socket, domainKey }) {
+export function connectPhoenixSocket({ socket, domainKey, options }) {
   return {
     type: socketActionTypes.SOCKET_CONNECT,
     socket,
+    options,
     domainKey,
   };
 }

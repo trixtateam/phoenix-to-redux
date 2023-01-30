@@ -27,6 +27,7 @@
     "action"
   ],
   "author": "jacqueswho <jacqueswho@gmail.com>",
+  "contributors": [],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/trixtateam/phoenix-to-redux/issues"
@@ -70,12 +71,12 @@
     "node": ">=6"
   },
   "peerDependencies": {
-    "immer": ">=8.0.1",
+    "immer": ">=9.0.6",
     "phoenix": "~1.5.9",
     "reselect": ">=4.0.0"
   },
   "dependencies": {
-    "immer": "~9.0.6",
+    "immer": ">=9.0.6",
     "phoenix": "~1.5.9"
   },
   "devDependencies": {

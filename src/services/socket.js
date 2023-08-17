@@ -5,11 +5,15 @@ import { Socket } from 'phoenix';
 export const socketService = {
   socket: undefined,
   domain: undefined,
+  params: undefined,
+  options: undefined,
 
   initialize: function initialize(domain, params, options) {
     if (!domain || !domain.length || !params) return undefined;
     if (this.socket) this.disconnect();
     this.domain = domain;
+    this.params = params;
+    this.options = options;
     this.socket = new Socket(domain, { params, ...options });
     return this.socket;
   },
@@ -18,6 +22,9 @@ export const socketService = {
     if (!this.socket) return;
     this.socket.disconnect(...props);
     this.socket = undefined;
+    this.domain = undefined;
+    this.params = undefined;
+    this.options = undefined;
   },
 
   channel: function channel(...props) {

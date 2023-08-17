@@ -1,13 +1,12 @@
-// eslint-disable-next-line no-unused-vars
-import { Channel, Presence } from 'phoenix';
+import { Presence } from 'phoenix';
 import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
-  channelActionTypes,
-  channelStatuses,
   NO_PHOENIX_CHANNEL_FOUND,
-  phoenixChannelStatuses,
   PHOENIX_CHANNEL_END_PROGRESS,
   PHOENIX_CHANNEL_LOADING_STATUS,
+  channelActionTypes,
+  channelStatuses,
+  phoenixChannelStatuses,
 } from '../../../constants';
 import { hasValidSocket } from '../../../services/helpers';
 import { socketService } from '../../../services/socket';

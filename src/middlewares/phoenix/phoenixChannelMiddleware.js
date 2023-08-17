@@ -20,8 +20,8 @@ import { isEqual, isNullOrEmpty } from '../../utils';
 import {
   connectToPhoenixChannelForEvents,
   endPhoenixChannelProgress,
-  updatePhoenixChannelLoadingStatus,
   leaveEventsForPhoenixChannel,
+  updatePhoenixChannelLoadingStatus,
 } from './actions';
 import {
   phoenixChannelLeave,
@@ -29,9 +29,9 @@ import {
   phoenixChannelTimeOut,
 } from './actions/channel';
 import {
-  disconnectPhoenixSocket,
-  connectPhoenixSocket,
   closePhoenixSocket,
+  connectPhoenixSocket,
+  disconnectPhoenixSocket,
   openPhoenixSocket,
   phoenixSocketError,
 } from './actions/socket';
@@ -51,12 +51,13 @@ export const createPhoenixChannelMiddleware = () => (store) => (next) => (action
 
       // if socket exists
       if (socketService.socket) {
-        if (
-          isEqual(socketService.socket.params(), params) ||
-          !isEqual(domainKey, currentDomainKey)
-        ) {
-          socketService.disconnect(null, 1000, 'Upgraded socket to authenticated session');
-        }
+        const sameDomain = domainKey === currentDomainKey;
+        const sameParams = isEqual(socketService.params, params);
+        const sameOptions = isEqual(socketService.options, options);
+        // prevent connecting if all values are the same
+        if (sameDomain && sameParams && sameOptions) return store.getState();
+        // disconnect from old socket
+        socketService.disconnect(null, 1000, 'Upgraded socket to authenticated session');
       }
 
       const domain = formatSocketDomain(domainUrl);

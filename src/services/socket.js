@@ -1,5 +1,6 @@
 // https://stackoverflow.com/questions/37876889/react-redux-and-websockets-with-socket-io
 // https://gist.github.com/reggi/923c6704104dd50395e5
+import { Socket } from 'phoenix';
 
 export const socketService = {
   socket: undefined,

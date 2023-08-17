@@ -1,3 +1,4 @@
+import { Presence } from 'phoenix';
 import { disconnectPhoenix, leavePhoenixChannel } from '../../../actions';
 import {
   NO_PHOENIX_CHANNEL_FOUND,

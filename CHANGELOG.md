@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/trixtateam/phoenix-to-redux/compare/v1.2.0...v1.2.1) (2023-08-17)
+
+
+### Bug Fixes
+
+* missing imports ([9848546](https://github.com/trixtateam/phoenix-to-redux/commit/98485461953333d963ec1171891b5a101a34502d))
+* prevent reconnecting to socket with same values ([8f6601d](https://github.com/trixtateam/phoenix-to-redux/commit/8f6601de74f78c2c6a59a863084ad0ebd82d99a6))
+* prevent reconnecting to socket with same values ([0a4d1aa](https://github.com/trixtateam/phoenix-to-redux/commit/0a4d1aa1a92f5fada61e698adae97d55a39f35c0))
+
 # [1.2.0](https://github.com/trixtateam/phoenix-to-redux/compare/v1.1.2...v1.2.0) (2022-12-22)
 
 

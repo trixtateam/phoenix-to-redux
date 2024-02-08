@@ -1,4 +1,5 @@
 import { socketActionTypes } from '../../../../constants';
+import { getSocketParams } from '../../../../services/socket';
 
 /** Should an error occur from the phoenix socket, this action will be dispatched
  * @param {Object} params - parameters
@@ -25,7 +26,7 @@ export function phoenixSocketError({ error, socketState, domainKey }) {
 export function openPhoenixSocket({ socket, domainKey }) {
   return {
     type: socketActionTypes.SOCKET_OPEN,
-    params: socket.params(),
+    params: getSocketParams(socket),
     socket,
     domainKey,
   };
@@ -37,12 +38,14 @@ export function openPhoenixSocket({ socket, domainKey }) {
  * @param {Object} params - parameters
  * @param {string} params.domainKey - domain for socket
  * @param {Object} params.socket = socket being opened
- * @param {Object=} [params.options = {}] parameters.options - socket options
+ * @param {Object=} params.options = {} parameters.options - socket options
  */
+
 export function connectPhoenixSocket({ socket, domainKey, options }) {
   return {
     type: socketActionTypes.SOCKET_CONNECT,
     socket,
+    params: getSocketParams(socket),
     options,
     domainKey,
   };
@@ -58,7 +61,7 @@ export function connectPhoenixSocket({ socket, domainKey, options }) {
 export function closePhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_CLOSE,
-    params: socket.params(),
+    params: getSocketParams(socket),
     domainKey,
     socket,
   };
@@ -73,7 +76,7 @@ export function closePhoenixSocket({ domainKey, socket }) {
 export function disconnectPhoenixSocket({ domainKey, socket }) {
   return {
     type: socketActionTypes.SOCKET_DISCONNECT,
-    params: socket.params(),
+    params: getSocketParams(socket),
     domainKey,
     socket,
   };

@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/trixtateam/phoenix-to-redux/compare/v1.2.1...v1.2.2) (2024-02-08)
+
+
+### Bug Fixes
+
+* socket  params is not a function ([80d8fe9](https://github.com/trixtateam/phoenix-to-redux/commit/80d8fe99d6c4aa3aa50505bbe2446a2811f65267))
+* socket params is not a function ([b87c7f1](https://github.com/trixtateam/phoenix-to-redux/commit/b87c7f1c768995094d78b702d235233123bf0857))
+
 ## [1.2.1](https://github.com/trixtateam/phoenix-to-redux/compare/v1.2.0...v1.2.1) (2023-08-17)
 
 

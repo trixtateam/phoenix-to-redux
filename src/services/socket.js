@@ -2,6 +2,9 @@
 // https://gist.github.com/reggi/923c6704104dd50395e5
 import { Socket } from 'phoenix';
 
+export const getSocketParams = (s) =>
+  s ? (typeof s.params === 'function' ? s.params() : s.params) : undefined;
+
 export const socketService = {
   socket: undefined,
   domain: undefined,
